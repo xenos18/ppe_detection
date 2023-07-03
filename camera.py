@@ -61,7 +61,11 @@ def get_config() -> Dict[str, Any]:
     del config['config']
 
     cfg_parser = configparser.ConfigParser()
-    cfg_parser.read_dict({"camera.reciever": {"width": 1920, "height": 1080, "video_dir": "./video/"}})
+    cfg_parser.read_dict({"camera.reciever": {
+        "width": 1920, "height": 1080, "video_dir": "./video/",
+        "camera_ip": "192.168.1.108",
+        "camera_port": "554"
+    }})
     try:
         cfg_parser.read(cfg_path)
     except FileNotFoundError:
