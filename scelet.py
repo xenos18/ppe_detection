@@ -111,7 +111,7 @@ def check_hands(peoples, img) -> list[Box]:
     return boxes
 
 
-def find(orig_img, pred):
+def find(orig_img, pred) -> list[Box]:
     img = letterbox(orig_img, orig_img.shape[1], stride=64, auto=True)[0]
     peoples = plot_pose_prediction(img, pred, show_bbox=False)
     return check_hands(peoples, img)
