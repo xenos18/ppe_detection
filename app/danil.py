@@ -1,10 +1,8 @@
 def get_bb(img, coords):
-    result = list()
+    result = []
     for i in coords:
-        if len(i) == 17:
+        if len(i) == 58:
             result.append(check_mask(img, i))
-    for i in coords:
-        if len(i) == 17:
             result.append(check_sweater(img, i))
     return result
 
@@ -26,11 +24,14 @@ def check_mask(img, coords):
                 # print('Координады:', j, i)
                 # print('Найден пиксель:', rgb)
                 count += 1
-    result = [sum_r // count, sum_g // count, sum_b // count]
-    if sum(result) >= 300:
-        return [mask_x1, mask_y1, mask_x2, mask_y2, 1]
-    else:
-        return [mask_x1, mask_y1, mask_x2, mask_y2, 0]
+    try:
+        result = [sum_r // count, sum_g // count, sum_b // count]
+        if sum(result) >= 300:
+            return [mask_x1, mask_y1, mask_x2, mask_y2, 1]
+        else:
+            return [mask_x1, mask_y1, mask_x2, mask_y2, 0]
+    except ZeroDivisionError:
+        pass
 
 
 def check_sweater(img, coords):
@@ -50,8 +51,11 @@ def check_sweater(img, coords):
                 # print('Координады:', j, i)
                 # print('Найден пиксель:', rgb)
                 count += 1
-    result = [sum_r // count, sum_g // count, sum_b // count]
-    if sum(result) >= 350:
-        return [sw_x1, sw_y1, sw_x2, sw_y2, 1]
-    else:
-        return [sw_x1, sw_y1, sw_x2, sw_y2, 0]
+    try:
+        result = [sum_r // count, sum_g // count, sum_b // count]
+        if sum(result) >= 350:
+            return [sw_x1, sw_y1, sw_x2, sw_y2, 1]
+        else:
+            return [sw_x1, sw_y1, sw_x2, sw_y2, 0]
+    except ZeroDivisionError:
+        pass

@@ -23,7 +23,6 @@ def generate_frames():
             break
         pred, list_of_coords = make_pose_prediction(model, frame)
         box_list = find(frame, list_of_coords) + get_bb(frame, list_of_coords)
-        print(box_list)
 
         plot_pose_prediction(frame, pred, show_bbox=True)
         plot_wear_prediction(frame, box_list)
