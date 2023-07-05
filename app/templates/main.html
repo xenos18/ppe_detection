@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Камера видеонаблюдения</title>
+    <!-- Подключение Bootstrap CSS -->
+    <link href="https://vjs.zencdn.net/8.0.4/video-js.css" rel="stylesheet">
+    <script src="https://vjs.zencdn.net/8.0.4/video.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css">
+</head>
+
+<body>
+<div class="container">
+    <h1>Камера видеонаблюдения</h1>
+
+     <div style="display: flex; flex-direction: column; width: 100%; height: 90vh;"
+         data-setup="{ &quot;playbackRates&quot;: [0.5, 1, 1.5, 2, 3, 5, 10] }" preload="auto" autoplay="true"
+         class="video-js vjs-default-skin vjs-big-play-centered vjs-touch-enabled vjs-workinghover vjs-v8 vjs-live vjs-has-started player-dimensions vjs-user-inactive vjs-playing vjs-seeking vjs-waiting vjs-error vjs-controls-disabled"
+         id="player" tabindex="-1" role="region" lang="ru-ru" translate="no" aria-label="Video Player">
+        <video id="player_html5_api" class="vjs-tech" autoplay="" preload="auto"
+               data-setup="{ &quot;playbackRates&quot;: [0.5, 1, 1.5, 2, 3, 5, 10] }"
+               style="display: flex; flex-direction: column; width: 100%; height: 90vh;" tabindex="-1"
+               role="application">
+            <!-- align-items: center; justify-content: center;  -->
+            <source  src="/video_feed"
+                    type="application/x-mpegURL">
+        </video>
+     </div>
+
+
+
+
+
+<!--    <div class="embed-responsive embed-responsive-16by9" id="player">-->
+<!--        &lt;!&ndash; Вставьте ссылку на поток с камеры видеонаблюдения в src &ndash;&gt;-->
+<!--        <video id="player_html5_api" class="vjs-tech" autoplay="" preload="auto"-->
+<!--               data-setup="{ &quot;playbackRates&quot;: [0.5, 1, 1.5, 2, 3, 5, 10] }"-->
+<!--               style="display: flex; flex-direction: column; width: 100%; height: 90vh;" tabindex="-1"-->
+<!--               role="application">-->
+<!--            &lt;!&ndash; align-items: center; justify-content: center;  &ndash;&gt;-->
+<!--            <source src="https://camera.lipetsk.ru/ms-42.camera.lipetsk.ru/live/3bb1eaec-eb20-403d-9a09-5bc92a16da86/playlist.m3u8"-->
+<!--                    type="application/x-mpegURL">-->
+<!--        </video>-->
+<!--    </div>-->
+</div>
+
+<!-- Подключение Bootstrap JS -->
+<script type="text/javascript">
+    $(document).ready(function () {
+        var video = videojs('player');
+//      video.ready(function() { this.playbackRate(1.5); });
+    });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
