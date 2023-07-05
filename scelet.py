@@ -82,7 +82,6 @@ def check_hand(elbow, hand, img) -> Type[Box]:
                     or pixel[0] == 0 and pixel[1] == 50 and pixel[2] == 100 \
                     or pixel[0] == 100 and pixel[1] == 150 and pixel[2] == 200:
                 interesting_pixel += 1
-    print(interesting_pixel / pixel_count)
     prediction = False if interesting_pixel / pixel_count > .1 else True
     Box(Dot(box_cords[0], box_cords[1]),    Dot(box_cords[2], box_cords[3]), prediction)
     return Box
