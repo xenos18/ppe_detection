@@ -1,3 +1,5 @@
+from typing import List, Any, Type
+
 import cv2
 
 from utils.datasets import letterbox
@@ -5,7 +7,23 @@ from utils.general import xywh2xyxy
 from utils.plots import plot_one_box
 
 
-def get_cords(kpts):
+class Dot:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __str__(self):
+        return "{" + str(self.x) + "; " + str(self.y) + "}"
+
+
+class Box:
+    def __init__(self, left_top: Dot, right_bottom: Dot, is_ok: bool):
+        self.left_top = left_top
+        self.right_bottom = right_bottom
+        self.is_ok = is_ok
+
+
+def get_cords(kpts) -> list[list[Any]]:
     cords = list()
     steps = 3
     num_kpts = len(kpts) // steps
@@ -13,21 +31,18 @@ def get_cords(kpts):
     for kid in range(num_kpts):
         x_coord, y_coord = kpts[steps * kid], kpts[steps * kid + 1]
         if not (x_coord % 640 == 0 or y_coord % 640 == 0):
-            if steps == 3:
-                conf = kpts[steps * kid + 2]
-                if conf < 0.5:
-                    continue
+            conf = kpts[steps * kid + 2]
+            if conf < 0.5:
+                continue
             cords.append([x_coord, y_coord, conf])
     return cords
 
 
-def plot_pose_prediction(img: cv2.Mat, pred: list, thickness=2,
-                         show_bbox: bool = True) -> cv2.Mat:
+def plot_pose_prediction(img: cv2.Mat, pred: list, thickness=2, show_bbox: bool = True) -> list[list[list[Any]]]:
     bbox = xywh2xyxy(pred[:, 2:6])
     peoples = list()
     for idx in range(pred.shape[0]):
         cords = get_cords(pred[idx, 7:].T)
-
         if len(cords) > 16:
             peoples.append(cords)
         if show_bbox:
@@ -35,7 +50,7 @@ def plot_pose_prediction(img: cv2.Mat, pred: list, thickness=2,
     return peoples
 
 
-def check_hand(elbow, hand, img):
+def check_hand(elbow, hand, img) -> Type[Box]:
     box_size = (
                        (elbow[0] - hand[0]) ** 2
                        +
@@ -68,11 +83,12 @@ def check_hand(elbow, hand, img):
                     or pixel[0] == 100 and pixel[1] == 150 and pixel[2] == 200:
                 interesting_pixel += 1
     print(interesting_pixel / pixel_count)
-    prediction = 0 if interesting_pixel / pixel_count > .1 else 1
-    return box_cords.append(prediction)
+    prediction = False if interesting_pixel / pixel_count > .1 else True
+    Box(Dot(box_cords[0], box_cords[1]),    Dot(box_cords[2], box_cords[3]), prediction)
+    return Box
 
 
-def check_left_hand(peoples, img, boxes):
+def check_left_hand(peoples, img, boxes: list) -> list[Box]:
     for people in peoples:
         left_elbow = people[-10]
         left_hand = people[-8]
@@ -80,7 +96,7 @@ def check_left_hand(peoples, img, boxes):
     return boxes
 
 
-def check_right_hand(peoples, img, boxes):
+def check_right_hand(peoples, img, boxes) -> list[Box]:
     for people in peoples:
         right_elbow = people[-9]
         right_hand = people[-7]
@@ -88,8 +104,8 @@ def check_right_hand(peoples, img, boxes):
     return boxes
 
 
-def check_hands(peoples, img):
-    boxes = list()
+def check_hands(peoples, img) -> list[Box]:
+    boxes: list[Box] = list()
     boxes = check_left_hand(peoples, img, boxes)
     boxes = check_right_hand(peoples, img, boxes)
     return boxes
