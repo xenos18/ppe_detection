@@ -1,13 +1,16 @@
 import argparse
+from typing import Tuple, Any
+
 import cv2
 import torch
 import numpy as np
+from numpy import ndarray
 from torchvision import transforms
 from models.experimental import attempt_load
 from utils.datasets import letterbox
 from utils.general import non_max_suppression_kpt, xywh2xyxy
 from utils.plots import output_to_keypoint, plot_one_box, plot_skeleton_kpts
-import main
+
 # Path to the weights file
 POSE_WEIGHTS = 'yolov7/weights/yolov7-w6-pose.pt'
 
@@ -20,7 +23,7 @@ model = attempt_load(POSE_WEIGHTS, map_location=device)  # load model
 model.eval()
 
 
-def make_pose_prediction(model, img: cv2.Mat) -> list:
+def make_pose_prediction(model, img: cv2.Mat) -> tuple[Any, Any]:
     ''' Make prediction with pretrained yolo pose estimator `model` on image `img`
     '''
     # Resize and pad image while meeting stride-multiple constraints
@@ -37,11 +40,11 @@ def make_pose_prediction(model, img: cv2.Mat) -> list:
                                      nc=model.yaml['nc'],
                                      nkpt=model.yaml['nkpt'],
                                      kpt_label=True)
-    output = output_to_keypoint(output)
-    print(output)
+    coords = output_to_keypoint(output)
+    # вероятности и координаты частей (нужен для функций)
     # scale to original image shape
-    output = scale_pose_output(output, resized_shape, img.shape[0:2])
-    return output
+    output = scale_pose_output(coords, resized_shape, img.shape[0:2])
+    return output, coords
 
 
 def scale_pose_output(output, resized_shape: tuple, original_shape: tuple, is_padded: bool = True):
@@ -109,7 +112,7 @@ def process_video(input_path, output_path):
 
 
 if __name__ == '__main__':
-    url = main.URL
+    url = ''
     out = 'main2.mp4'
     # parser = argparse.ArgumentParser()
     # parser.add_argument('-i', '--input', type=str, required=True, help='Path to input video file')
