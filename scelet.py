@@ -24,6 +24,7 @@ def get_cords(kpts):
 def plot_pose_prediction(img: cv2.Mat, pred: list, thickness=2,
                          show_bbox: bool = True) -> cv2.Mat:
     bbox = xywh2xyxy(pred[:, 2:6])
+    peoples = list()
     for idx in range(pred.shape[0]):
         cords = get_cords(pred[idx, 7:].T)
 
@@ -31,9 +32,10 @@ def plot_pose_prediction(img: cv2.Mat, pred: list, thickness=2,
             peoples.append(cords)
         if show_bbox:
             plot_one_box(bbox[idx], img, line_thickness=thickness)
+    return peoples
 
 
-def check_hand(elbow, hand):
+def check_hand(elbow, hand, img):
     box_size = (
                        (elbow[0] - hand[0]) ** 2
                        +
@@ -66,38 +68,34 @@ def check_hand(elbow, hand):
                     or pixel[0] == 100 and pixel[1] == 150 and pixel[2] == 200:
                 interesting_pixel += 1
     print(interesting_pixel / pixel_count)
-    if interesting_pixel / pixel_count > .1:
-        plot_one_box(box_cords, img, color=[0, 0, 255], line_thickness=1)
-        cv2.putText(img, "Warning!", [box_cords[0], box_cords[3] + 10], 0, .5, [0, 0, 255])
-    else:
-        plot_one_box(box_cords, img, color=[0, 255, 0], line_thickness=1)
-        cv2.putText(img, "Ok!", [box_cords[0], box_cords[3] + 10], 0, .5, [0, 255, 0])
+    prediction = 0 if interesting_pixel / pixel_count > .1 else 1
+    return box_cords.append(prediction)
 
 
-def check_left_hand():
+def check_left_hand(peoples, img, boxes):
     for people in peoples:
         left_elbow = people[-10]
         left_hand = people[-8]
-        check_hand(elbow=left_elbow, hand=left_hand)
+        boxes.append(check_hand(elbow=left_elbow, hand=left_hand, img=img))
+    return boxes
 
 
-def check_right_hand():
+def check_right_hand(peoples, img, boxes):
     for people in peoples:
         right_elbow = people[-9]
         right_hand = people[-7]
-        check_hand(elbow=right_elbow, hand=right_hand)
+        boxes.append(check_hand(elbow=right_elbow, hand=right_hand, img=img))
+    return boxes
+
+
+def check_hands(peoples, img):
+    boxes = list()
+    boxes = check_left_hand(peoples, img, boxes)
+    boxes = check_right_hand(peoples, img, boxes)
+    return boxes
 
 
 def find(orig_img, pred):
-    global img, peoples
-    img = orig_img
-
     img = letterbox(orig_img, orig_img.shape[1], stride=64, auto=True)[0]
-
-    peoples = list()
-
-    plot_pose_prediction(img, pred, show_bbox=False)
-
-    check_left_hand()
-    check_right_hand()
-    return img
+    peoples = plot_pose_prediction(img, pred, show_bbox=False)
+    return check_hands(peoples, img)
