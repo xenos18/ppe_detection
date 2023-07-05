@@ -50,6 +50,12 @@ def check_hand(elbow, hand, img):
         int(hand[0] - box_size + box_pos_x), int(hand[1] - box_size + box_pos_y),
         int(hand[0] + box_size + box_pos_x), int(hand[1] + box_size + box_pos_y)
     ]
+    print("--------------------------------------------------------------------")
+    print(elbow[0], elbow[1])
+    print(hand[0], hand[1])
+    print(box_cords)
+    print("--------------------------------------------------------------------")
+    print()
 
     round_val = 50
 
@@ -65,9 +71,9 @@ def check_hand(elbow, hand, img):
                     or pixel[0] == 0 and pixel[1] == 50 and pixel[2] == 100 \
                     or pixel[0] == 100 and pixel[1] == 150 and pixel[2] == 200:
                 interesting_pixel += 1
-    print(interesting_pixel / pixel_count)
     prediction = 0 if interesting_pixel / pixel_count > .1 else 1
-    return box_cords.append(prediction)
+    box_cords.append(prediction)
+    return box_cords
 
 
 def check_left_hand(peoples, img, boxes):
