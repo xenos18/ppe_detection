@@ -21,13 +21,6 @@ def get_cords(kpts):
     return cords
 
 
-def show_image():
-    global img
-    while True:
-        cv2.imshow("Video Capture", img)
-        cv2.waitKey(1)
-
-
 def plot_pose_prediction(img: cv2.Mat, pred: list, thickness=2,
                          show_bbox: bool = True) -> cv2.Mat:
     bbox = xywh2xyxy(pred[:, 2:6])
@@ -95,7 +88,7 @@ def check_right_hand():
         check_hand(elbow=right_elbow, hand=right_hand)
 
 
-def find(orig_img, pred, is_show_image=False):
+def find(orig_img, pred):
     global img, peoples
     img = orig_img
 
@@ -107,6 +100,4 @@ def find(orig_img, pred, is_show_image=False):
 
     check_left_hand()
     check_right_hand()
-    if is_show_image:
-        show_image()
     return img
