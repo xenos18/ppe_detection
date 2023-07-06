@@ -1,10 +1,14 @@
 from typing import List, Any, Type
-
 import cv2
+import torch
+from torchvision import transforms
+import numpy as np
+import matplotlib.pyplot as plt
 
+from models.experimental import attempt_load
 from utils.datasets import letterbox
-from utils.general import xywh2xyxy
-from utils.plots import plot_one_box
+from utils.general import non_max_suppression_kpt, xywh2xyxy
+from utils.plots import output_to_keypoint, plot_skeleton_kpts, plot_one_box
 
 
 class Dot:
@@ -21,6 +25,12 @@ class Box:
         self.left_top = left_top
         self.right_bottom = right_bottom
         self.is_ok = is_ok
+
+    def __repr__(self):
+        return "Box(" + str(self.left_top) + ", " + str(self.right_bottom) + ", " + str(self.is_ok) + ")"
+
+    def __str__(self):
+        return "[" + str(self.left_top) + ", " + str(self.right_bottom) + ", " + str(self.is_ok) + "]"
 
 
 class Dima:
@@ -49,7 +59,7 @@ class Dima:
                 plot_one_box(bbox[idx], self.img, line_thickness=thickness)
         return peoples
 
-    def check_hand(self, elbow, hand) -> Type[Box]:
+    def check_hand(self, elbow, hand) -> Box:
         box_size = (
                            (elbow[0] - hand[0]) ** 2
                            +
@@ -73,17 +83,17 @@ class Dima:
         interesting_pixel = 0
         for y in range(box_cords[0], box_cords[2]):
             for x in range(box_cords[1], box_cords[3]):
-                pixel = [i for i in self.img[x, y]]
+                # pixel = [i for i in self.img[x, y]]
+                pixel = self.img[x, y]
                 for i in range(len(pixel)):
                     pixel[i] = pixel[i] // round_val * round_val
                 pixel_count += 1
-                if pixel[0] == 50 and pixel[1] == 50 and pixel[2] == 100 \
-                        or pixel[0] == 0 and pixel[1] == 50 and pixel[2] == 100 \
-                        or pixel[0] == 100 and pixel[1] == 150 and pixel[2] == 200:
+                if pixel[0] == 50 and pixel[1] == 50 and pixel[2] == 50 \
+                        or pixel[0] == 50 and pixel[1] == 0 and pixel[2] == 50:
                     interesting_pixel += 1
-        prediction = False if interesting_pixel / pixel_count > .1 else True
-        Box(Dot(box_cords[0], box_cords[1]), Dot(box_cords[2], box_cords[3]), prediction)
-        return Box
+        prediction = True if interesting_pixel / pixel_count > .1 else False
+        box = Box(Dot(box_cords[0], box_cords[1]), Dot(box_cords[2], box_cords[3]), prediction)
+        return box
 
     def check_left_hand(self, boxes: list) -> list[Box]:
         for people in self.peoples:
@@ -104,8 +114,57 @@ class Dima:
         boxes = self.check_left_hand(boxes)
         boxes = self.check_right_hand(boxes)
         return boxes
-    
+
     def find(self, orig_img, pred) -> list[Box]:
         self.img = letterbox(orig_img, orig_img.shape[1], stride=64, auto=True)[0]
         self.peoples = self.plot_pose_prediction(pred, show_bbox=False)
         return self.check_hands()
+
+
+if __name__ == "__main__":
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+    model = attempt_load('weights/yolov7-w6-pose.pt', map_location=device)
+    model.eval()
+
+    orig_img = cv2.imread('test2.png')
+    img = letterbox(orig_img, orig_img.shape[1], stride=64, auto=True)[0]
+
+    img_ = transforms.ToTensor()(img)
+    img_ = torch.unsqueeze(img_, 0)
+    img_ = img_.to(device).float()
+
+    with torch.no_grad():
+        pred, _ = model(img_)
+
+    pred = non_max_suppression_kpt(pred,
+                                   conf_thres=0.25,
+                                   iou_thres=0.65,
+                                   nc=model.yaml['nc'],
+                                   nkpt=model.yaml['nkpt'],
+                                   kpt_label=True)
+
+
+    def plot_pose_prediction1(img: cv2.Mat, pred: list, thickness=2,
+                             show_bbox: bool = True) -> cv2.Mat:
+        bbox = xywh2xyxy(pred[:, 2:6])
+        for idx in range(pred.shape[0]):
+            plot_skeleton_kpts(img, pred[idx, 7:].T, 3)
+            if show_bbox:
+                plot_one_box(bbox[idx], img, line_thickness=thickness)
+
+
+    pred = output_to_keypoint(pred)
+    shit = Dima()
+    boxes = shit.find(img, pred)
+
+    print(boxes)
+    for box in boxes:
+        color = [0, 255, 0] if box.is_ok else [0, 0, 255]
+        plot_one_box([box.left_top.x, box.left_top.y, box.right_bottom.x, box.right_bottom.y], img, color, line_thickness=3)
+        # cv2.putText(img, str(box.is_ok), [box.left_top.x, box.right_bottom.y + 15], 1, 1, color)
+
+    # plot_pose_prediction1(img, pred)
+    while True:
+        cv2.imshow("img", img)
+        cv2.waitKey(1)
