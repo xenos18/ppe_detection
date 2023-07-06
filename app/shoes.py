@@ -11,7 +11,7 @@ class Dot:
         return "{" + str(self.x) + "; " + str(self.y) + "}"
 
 
-class Boxlos:
+class ShoesLos:
     def get_cords(self, kpts) -> list[list[Any]]:
         cords = list()
         steps = 3
@@ -62,32 +62,28 @@ class Boxlos:
         for y in range(box_cords[0], box_cords[2]):
             for x in range(box_cords[1], box_cords[3]):
                 pixel = [i for i in self.img[x, y]]
-                # pixel = [i for i in self.img[x, y]]
-                pixel = self.img[x, y]
+                # pixel = self.img[x, y]
                 for i in range(len(pixel)):
                     pixel[i] = pixel[i] // round_val * round_val
                 pixel_count += 1
-                if pixel[0] == 50 and pixel[1] == 50 and pixel[2] == 100 \
-                        or pixel[0] == 0 and pixel[1] == 50 and pixel[2] == 100 \
-                        or pixel[0] == 100 and pixel[1] == 150 and pixel[2] == 200:
-                    if pixel[0] == 50 and pixel[1] == 50 and pixel[2] == 50 \
-                            or pixel[0] == 50 and pixel[1] == 0 and pixel[2] == 50:
-                        interesting_pixel += 1
-        prediction = False if interesting_pixel / pixel_count > .1 else True
+                if pixel[0] == 50 and pixel[1] == 0 and pixel[2] == 0 \
+                        or pixel[0] == 50 and pixel[1] == 50 and pixel[2] == 50:
+                    interesting_pixel += 1
+        prediction = True if interesting_pixel / pixel_count > .1 else False
         coords = [box_cords[0], box_cords[1], box_cords[2], box_cords[3], prediction]
         return coords
 
     def check_left_hand(self, boxes: list):
         for people in self.peoples:
-            left_elbow = people[-10]
-            left_hand = people[-8]
+            left_elbow = people[-4]
+            left_hand = people[-2]
             boxes.append(self.check_hand(elbow=left_elbow, hand=left_hand))
         return boxes
 
     def check_right_hand(self, boxes):
         for people in self.peoples:
-            right_elbow = people[-9]
-            right_hand = people[-7]
+            right_elbow = people[-3]
+            right_hand = people[-1]
             boxes.append(self.check_hand(elbow=right_elbow, hand=right_hand))
         return boxes
 

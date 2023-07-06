@@ -3,6 +3,7 @@ import config
 import sys
 from daniil import Boxlos
 from danil import get_bb
+from shoes import ShoesLos
 from yolov7 import *
 
 
@@ -23,11 +24,12 @@ def generate_frames():
         if not ret:
             break
         pred, list_of_coords = make_pose_prediction(model, frame)
-        gg = Boxlos()
+        hands = Boxlos()
+        shoe = ShoesLos()
         # box_list = gg.find(frame, list_of_coords)
-        box_list = get_bb(frame, list_of_coords) + gg.find(frame, list_of_coords)
+        box_list = get_bb(frame, list_of_coords) + hands.find(frame, list_of_coords) + shoe.find(frame, list_of_coords)
 
-        plot_pose_prediction(frame, pred, show_bbox=True)
+        # plot_pose_prediction(frame, pred, show_bbox=True)
         plot_wear_prediction(frame, box_list)
 
         _, jpeg = cv2.imencode(".jpg", frame)
