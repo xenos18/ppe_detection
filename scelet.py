@@ -1,9 +1,8 @@
-from typing import List, Any, Type
+from typing import Any
+
 import cv2
 import torch
 from torchvision import transforms
-import numpy as np
-import matplotlib.pyplot as plt
 
 from models.experimental import attempt_load
 from utils.datasets import letterbox
@@ -59,7 +58,7 @@ class Dima:
                 plot_one_box(bbox[idx], self.img, line_thickness=thickness)
         return peoples
 
-    def check_hand(self, elbow, hand) -> Box:
+    def check(self, elbow, hand, conditions) -> Box:
         box_size = (
                            (elbow[0] - hand[0]) ** 2
                            +
@@ -83,42 +82,75 @@ class Dima:
         interesting_pixel = 0
         for y in range(box_cords[0], box_cords[2]):
             for x in range(box_cords[1], box_cords[3]):
-                # pixel = [i for i in self.img[x, y]]
-                pixel = self.img[x, y]
+                pixel = [i for i in self.img[x, y]]
+                # pixel = self.img[x, y]
                 for i in range(len(pixel)):
                     pixel[i] = pixel[i] // round_val * round_val
                 pixel_count += 1
-                if pixel[0] == 50 and pixel[1] == 50 and pixel[2] == 50 \
-                        or pixel[0] == 50 and pixel[1] == 0 and pixel[2] == 50:
-                    interesting_pixel += 1
+                for condition in conditions:
+                    if pixel[0] == condition[0] and pixel[1] == condition[1] and pixel[2] == condition[2]:
+                        interesting_pixel += 1
         prediction = True if interesting_pixel / pixel_count > .1 else False
         box = Box(Dot(box_cords[0], box_cords[1]), Dot(box_cords[2], box_cords[3]), prediction)
         return box
 
-    def check_left_hand(self, boxes: list) -> list[Box]:
+    def check_left_shoe(self, boxes, conditions) -> list[Box]:
+        for people in self.peoples:
+            left_elbow = people[-4]
+            left_hand = people[-2]
+            boxes.append(self.check(elbow=left_elbow, hand=left_hand, conditions=conditions))
+        return boxes
+
+    def check_right_shoe(self, boxes, conditions) -> list[Box]:
+        for people in self.peoples:
+            right_elbow = people[-3]
+            right_hand = people[-1]
+            boxes.append(self.check(elbow=right_elbow, hand=right_hand, conditions=conditions))
+        return boxes
+
+    def check_left_hand(self, boxes, conditions) -> list[Box]:
         for people in self.peoples:
             left_elbow = people[-10]
             left_hand = people[-8]
-            boxes.append(self.check_hand(elbow=left_elbow, hand=left_hand))
+            boxes.append(self.check(elbow=left_elbow, hand=left_hand, conditions=conditions))
         return boxes
 
-    def check_right_hand(self, boxes) -> list[Box]:
+    def check_right_hand(self, boxes, conditions) -> list[Box]:
         for people in self.peoples:
             right_elbow = people[-9]
             right_hand = people[-7]
-            boxes.append(self.check_hand(elbow=right_elbow, hand=right_hand))
+            boxes.append(self.check(elbow=right_elbow, hand=right_hand, conditions=conditions))
+        return boxes
+
+    def check_shoes(self) -> list[Box]:
+        boxes: list[Box] = list()
+        conditions = [
+            [50, 0, 0],
+            [50, 50, 50]
+        ]
+        boxes = self.check_left_shoe(boxes, conditions)
+        boxes = self.check_right_shoe(boxes, conditions)
         return boxes
 
     def check_hands(self) -> list[Box]:
         boxes: list[Box] = list()
-        boxes = self.check_left_hand(boxes)
-        boxes = self.check_right_hand(boxes)
+        conditions = [
+            [50, 0, 50],
+            [50, 50, 50]
+        ]
+        boxes = self.check_left_hand(boxes, conditions)
+        boxes = self.check_right_hand(boxes, conditions)
         return boxes
 
-    def find(self, orig_img, pred) -> list[Box]:
+    def find_hands(self, orig_img, pred) -> list[Box]:
         self.img = letterbox(orig_img, orig_img.shape[1], stride=64, auto=True)[0]
         self.peoples = self.plot_pose_prediction(pred, show_bbox=False)
         return self.check_hands()
+
+    def find_shoes(self, orig_img, pred) -> list[Box]:
+        self.img = letterbox(orig_img, orig_img.shape[1], stride=64, auto=True)[0]
+        self.peoples = self.plot_pose_prediction(pred, show_bbox=False)
+        return self.check_shoes()
 
 
 if __name__ == "__main__":
@@ -127,7 +159,7 @@ if __name__ == "__main__":
     model = attempt_load('weights/yolov7-w6-pose.pt', map_location=device)
     model.eval()
 
-    orig_img = cv2.imread('test2.png')
+    orig_img = cv2.imread('test1.png')
     img = letterbox(orig_img, orig_img.shape[1], stride=64, auto=True)[0]
 
     img_ = transforms.ToTensor()(img)
@@ -155,8 +187,9 @@ if __name__ == "__main__":
 
 
     pred = output_to_keypoint(pred)
+    # plot_pose_prediction1(img, pred)  # рисует скелет
     shit = Dima()
-    boxes = shit.find(img, pred)
+    boxes = shit.find_hands(img, pred) + shit.find_shoes(img, pred)
 
     print(boxes)
     for box in boxes:
