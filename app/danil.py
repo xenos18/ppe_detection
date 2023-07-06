@@ -59,3 +59,6 @@ def check_sweater(img, coords):
             return [sw_x1, sw_y1, sw_x2, sw_y2, 0]
     except ZeroDivisionError:
         pass
+
+
+

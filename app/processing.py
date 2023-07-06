@@ -1,7 +1,7 @@
 import cv2
 import config
 import sys
-from daniil import find
+from daniil import Boxlos
 from danil import get_bb
 from yolov7 import *
 
@@ -10,7 +10,8 @@ def plot_wear_prediction(img, boxs):
     for box in boxs:
         print(box)
         if box:
-            cv2.rectangle(img, (box[0], box[1]), (box[2], box[3]), (0, 255, 255), 3)
+            color = (0, 255, 0) if box[4] else (0, 0, 255)
+            cv2.rectangle(img, (box[0], box[1]), (box[2], box[3]), color, 3)
             print(True)
 
 
@@ -22,7 +23,9 @@ def generate_frames():
         if not ret:
             break
         pred, list_of_coords = make_pose_prediction(model, frame)
-        box_list = find(frame, list_of_coords) + get_bb(frame, list_of_coords)
+        gg = Boxlos()
+        # box_list = gg.find(frame, list_of_coords)
+        box_list = get_bb(frame, list_of_coords) + gg.find(frame, list_of_coords)
 
         plot_pose_prediction(frame, pred, show_bbox=True)
         plot_wear_prediction(frame, box_list)

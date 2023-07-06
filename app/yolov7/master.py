@@ -27,7 +27,7 @@ def make_pose_prediction(model, img: cv2.Mat) -> tuple[Any, Any]:
     ''' Make prediction with pretrained yolo pose estimator `model` on image `img`
     '''
     # Resize and pad image while meeting stride-multiple constraints
-    img_ = letterbox(img, 960, stride=64, auto=True)[0]
+    img_ = letterbox(img, img.shape[1], stride=64, auto=True)[0]
     resized_shape = img_.shape[0:2]
     # Transform image to model readable structure
     img_ = transforms.ToTensor()(img_)
