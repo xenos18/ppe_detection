@@ -33,7 +33,7 @@ class Box:
         return "[" + str(self.left_top) + ", " + str(self.right_bottom) + ", " + str(self.is_ok) + "]"
 
 
-class Dima:
+class Petya:
     def get_cords(self, kpts) -> list[list[Any]]:
         cords = list()
         steps = 3
@@ -156,7 +156,7 @@ if __name__ == "__main__":
 
     pred = output_to_keypoint(pred)
     # plot_pose_prediction1(img, pred)  # рисует скелет
-    shit = Dima()
+    shit = Petya()
     boxes = shit.find(img, pred)
     img = shit.img
 
