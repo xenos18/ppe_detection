@@ -158,7 +158,6 @@ if __name__ == "__main__":
     # plot_pose_prediction1(img, pred)  # рисует скелет
     shit = Petya()
     boxes = shit.find(img, pred)
-    img = shit.img
 
     print(boxes)
     for box in boxes:
