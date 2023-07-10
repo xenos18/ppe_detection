@@ -53,7 +53,7 @@ val2017.zip
 !targets*.mat
 
 # Neural Network weights -----------------------------------------------------------------------------------------------
-*.pt
+yolov7-w6-pose.pt
 *.pb
 *.onnx
 *.engine

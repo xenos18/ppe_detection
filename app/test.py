@@ -12,6 +12,29 @@ from processing import *
 server = Flask(__name__)
 app = dash.Dash(__name__, server=server, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
+def generate_frames(main):
+    """Получение и обработка потока"""
+    capture = cv2.VideoCapture(main, cv2.CAP_FFMPEG)
+    while True:
+        ret, frame = capture.read()
+        if not ret:
+            break
+        # pred, list_of_coords = make_pose_prediction(model, frame)
+        # hands = Boxlos()
+        # shoe = ShoesLos()
+        # # box_list = gg.find(frame, list_of_coords)
+        # box_list = get_bb(frame, list_of_coords) + hands.find(frame, list_of_coords) + shoe.find(frame, list_of_coords)
+        #
+        # # plot_pose_prediction(frame, pred, show_bbox=True)
+        # plot_wear_prediction(frame, box_list)
+
+        _, jpeg = cv2.imencode(".jpg", frame)
+        frame_bytes = jpeg.tobytes()
+        print(frame_bytes)
+        yield (b"--frame\r\n"
+               b"Content-Type: image/jpeg\r\n\r\n" + frame_bytes + b"\r\n\r\n")
+    capture.release()
+
 
 def read_video_frames(video_path):
     # Открываем видеофайл
@@ -29,7 +52,7 @@ def read_video_frames(video_path):
 @server.route('/video_feed')
 def video_feed():
     """Функция обработки и отдачи потока"""
-    return Response(read_video_frames(config.URL),
+    return Response(generate_frames(config.URL),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
@@ -40,5 +63,4 @@ app.layout = html.Div([
 
 if __name__ == '__main__':
     # app.run_server(debug=True, port=5000, host='0.0.0.0')
-    # app.run_server(debug=True, port=8050, host='127.0.0.1')
-    read_video_frames('main.avi')
+    app.run_server(debug=True, port=8050, host='127.0.0.1')
