@@ -18,19 +18,19 @@ def plot_wear_prediction(img, boxs):
 
 def generate_frames():
     """Получение и обработка потока"""
-    capture = cv2.VideoCapture('main.avi', cv2.CAP_FFMPEG)
+    capture = cv2.VideoCapture(config.URL, cv2.CAP_FFMPEG)
     while True:
         ret, frame = capture.read()
         if not ret:
             break
-        pred, list_of_coords = make_pose_prediction(model, frame)
-        hands = Boxlos()
-        shoe = ShoesLos()
-        # box_list = gg.find(frame, list_of_coords)
-        box_list = get_bb(frame, list_of_coords) + hands.find(frame, list_of_coords) + shoe.find(frame, list_of_coords)
-
-        # plot_pose_prediction(frame, pred, show_bbox=True)
-        plot_wear_prediction(frame, box_list)
+        # pred, list_of_coords = make_pose_prediction(model, frame)
+        # hands = Boxlos()
+        # shoe = ShoesLos()
+        # # box_list = gg.find(frame, list_of_coords)
+        # box_list = get_bb(frame, list_of_coords) + hands.find(frame, list_of_coords) + shoe.find(frame, list_of_coords)
+        #
+        # # plot_pose_prediction(frame, pred, show_bbox=True)
+        # plot_wear_prediction(frame, box_list)
 
         _, jpeg = cv2.imencode(".jpg", frame)
         frame_bytes = jpeg.tobytes()
