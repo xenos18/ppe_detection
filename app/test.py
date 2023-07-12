@@ -1,66 +1,110 @@
-import ffmpeg
+import random
 
 import dash
-from dash import html
+from dash import html, dcc
 import dash_bootstrap_components as dbc
 from flask import Flask, Response
-import sys
+import subprocess
 
-sys.path.append("yolov7")
 from processing import *
 
 server = Flask(__name__)
 app = dash.Dash(__name__, server=server, external_stylesheets=[dbc.themes.BOOTSTRAP])
+server.human = 3
 
-def generate_frames(main):
-    """Получение и обработка потока"""
-    capture = cv2.VideoCapture(main, cv2.CAP_FFMPEG)
+url = 'https://camera.lipetsk.ru/ms-31.camera.lipetsk.ru/live/4c1f5405-e8a9-4d38-9bbd-6066946fb022/playlist.m3u8'
+
+
+def get_video_stream():
+    ffmpeg_command = [
+        'ffmpeg',
+        '-i', f'{url}',  # Замените ссылку на фактическую ссылку видеопотока
+        '-c:v', 'libx264',
+        '-f', 'image2pipe',
+        '-pix_fmt', 'rgb24',
+        '-vcodec', 'rawvideo',
+        '-']
+
+    ffmpeg_process = subprocess.Popen(ffmpeg_command, stdout=subprocess.PIPE, bufsize=10 ** 8)
+
+    while True:
+        frame = ffmpeg_process.stdout.read(
+            640 * 480 * 3)  # Размер кадра, подстраивайте под требования вашего видеопотока
+
+        if not frame:
+            break
+
+        yield b'--frame\r\nContent-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n'
+
+    ffmpeg_process.stdout.flush()
+    ffmpeg_process.kill()
+
+
+def generate_frames():
+    capture = cv2.VideoCapture(config.URL, cv2.CAP_FFMPEG)
     while True:
         ret, frame = capture.read()
         if not ret:
             break
-        # pred, list_of_coords = make_pose_prediction(model, frame)
-        # hands = Boxlos()
-        # shoe = ShoesLos()
-        # # box_list = gg.find(frame, list_of_coords)
-        # box_list = get_bb(frame, list_of_coords) + hands.find(frame, list_of_coords) + shoe.find(frame, list_of_coords)
-        #
-        # # plot_pose_prediction(frame, pred, show_bbox=True)
-        # plot_wear_prediction(frame, box_list)
-
+        # Обработайте кадр, если это необходимо
+        # Например, преобразуйте его в формат JPEG для передачи через HTT
+        server.human = server.human + 1
         _, jpeg = cv2.imencode(".jpg", frame)
         frame_bytes = jpeg.tobytes()
-        print(frame_bytes)
         yield (b"--frame\r\n"
                b"Content-Type: image/jpeg\r\n\r\n" + frame_bytes + b"\r\n\r\n")
     capture.release()
 
 
-def read_video_frames(video_path):
-    # Открываем видеофайл
-    input_stream = ffmpeg.input(video_path)
+def generate_image():
+    while True:
 
-    # Читаем видеопоток и преобразуем его в байты
-    frame_bytes = (
-        ffmpeg.output(input_stream, 'pipe:', format='rawvideo', pix_fmt='rgb24')
-        .run(capture_stdout=True)
-    )
-    print(frame_bytes)
-    return frame_bytes
+        print(server.human)
+        yield (b"--frame\r\n"
+               b"Content-Type: image/jpeg\r\n\r\n" + b"\r\n\r\n")
 
 
 @server.route('/video_feed')
 def video_feed():
     """Функция обработки и отдачи потока"""
-    return Response(generate_frames(config.URL),
+    return Response(generate_frames(),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
-app.layout = html.Div([
-    html.H1("Webcam Test"),
-    html.Img(src="/video_feed")
-])
+@server.route('/image_feed')
+def image_feed():
+    """Функция обработки и отдачи потока"""
+    return Response(generate_image(),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
+
+app.layout = html.Div(
+    children=[
+        html.Div(className='header', children=[
+            dbc.Row(
+                children=[
+                    dbc.Col(
+                        html.Img(src='static/img/logo.png', className='logo', style={"width": "40%"}),
+                        width=3
+                    ),
+                    dbc.Col(
+                        dbc.Button("Настройки", color='primary', className='button',
+                                   style={"float": "left", 'padding-top': '0.5em'}),
+                        width=3
+                    ),
+                ],
+                align='center',
+                justify='center',
+                style={'padding': '0.7em'}
+            ),
+        ]),
+        html.Img(src="/video_feed",
+                 style={"width": "70%", "float": "left", 'padding': '1.5em', 'padding-top': '0.5em', }),
+    ]
+
+)
+
 
 if __name__ == '__main__':
     # app.run_server(debug=True, port=5000, host='0.0.0.0')
-    app.run_server(debug=True, port=8050, host='127.0.0.1')
+    app.run_server(debug=True, port=8030, host='127.0.0.1')

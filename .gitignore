@@ -1,3 +1,5 @@
 app/.env
 .idea
 .env
+venv
+app/weights/*.pt
