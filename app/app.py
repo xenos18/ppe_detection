@@ -1,6 +1,6 @@
 from flask import Flask, render_template, Response
-from processing import generate_frames
-
+from processing import read_frames, generate_frames
+from config import URL
 
 app = Flask(__name__)
 
