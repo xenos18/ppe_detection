@@ -8,7 +8,7 @@ app = Flask(__name__)
 @app.route('/video_feed')
 def video_feed():
     """Функция обработки и отдачи потока"""
-    return Response(generate_frames(),
+    return Response(read_frames(URL),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
