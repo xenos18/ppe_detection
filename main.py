@@ -1,7 +1,5 @@
 import asyncio
 import random
-import threading
-import time
 
 import numpy as np
 import uvicorn
@@ -47,7 +45,6 @@ async def send():
 
 @app.on_event('startup')
 async def start():
-    pass
     x = Process(target=camera, args=(image, results))
     x.start()
 
@@ -60,6 +57,8 @@ async def stream(ws: WebSocket):
 
     ws_id = random.randint(0, 1 << 30)
     ws_dict[ws_id] = ws
+
+    print(f"{ws_id} connected")
 
     try:
         while True:
