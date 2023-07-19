@@ -21,6 +21,14 @@ class Location(Base):
     def __repr__(self) -> str:
         return f"Location(id={self.id!r}, type={self.type!r}, place={self.place!r})"
 
+    def serialize(self):
+        return {
+            'id': self.id,
+            'type': self.type,
+            'place': self.place,
+
+        }
+
 
 class LabEvent(Base):
     __tablename__ = "log_table_lab"

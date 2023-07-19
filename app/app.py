@@ -3,15 +3,11 @@ import random
 
 import uvicorn
 from fastapi import FastAPI, WebSocket
-from fastapi.responses import HTMLResponse
-from fastapi.requests import Request
-from fastapi.templating import Jinja2Templates
-from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Dict
 from multiprocessing import Process, Manager
 
-from camera import *
+from video import Value, camera
 from routers import admin
 
 app = FastAPI()
@@ -30,9 +26,6 @@ image: Value
 results: Value
 
 ws_dict: Dict[int, WebSocket] = {}
-
-app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
 
 
 async def send():
@@ -78,13 +71,8 @@ async def stream(ws: WebSocket):
         print(f"{ws_id} disconnected")
 
 
-@app.get("/", response_class=HTMLResponse)
-async def main(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
-
 if __name__ == "__main__":
     manager = Manager()
-    print(db_conn)
     image = manager.Value("image", None)
     results = manager.Value("results", None)
 
