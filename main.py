@@ -78,4 +78,4 @@ if __name__ == "__main__":
     image = manager.Value("image", None)
     results = manager.Value("results", None)
 
-    uvicorn.run(app)
+    uvicorn.run(app, host="0.0.0.0", port=8000)

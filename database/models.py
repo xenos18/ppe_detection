@@ -12,6 +12,17 @@ class Base(DeclarativeBase):
     pass
 
 
+class User(Base):
+    __tablename__ = "users"
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+
+    first_name: Mapped[str] = mapped_column(String(150))
+    second_name: Mapped[str] = mapped_column(String(150))
+    third_name: Mapped[str] = mapped_column(String(150))
+
+    face_folder: Mapped[str] = mapped_column(String(150))
+
+
 class Location(Base):
     __tablename__ = "locations"
     id: Mapped[int] = mapped_column(primary_key=True)
