@@ -1,14 +1,23 @@
 version: '3.10'
 
 services:
+
   python:
-    container_name: flask-app
+    container_name: fastapi-app
     build:
-      dockerfile: Dockerfile
+      dockerfile: Docker/src/Dockerfile
     depends_on:
       - postgres
+    deploy:
+      resources:
+        limits:
+          cpus: '12.0'
+          memory: 5G
+        reservations:
+          cpus: '5.0'
+          memory: 2G
     volumes:
-      - ${PROJECT_VOLUME}:/app:cached
+      - ${PROJECT_VOLUME_SRC}:/app:cached
     ports:
       - "8500:5000"
     networks:
@@ -27,6 +36,22 @@ services:
       - "5445:5432"
     networks:
       - flask-network
+
+  node:
+    container_name: vue-app
+    build:
+      dockerfile: Docker/spa/Dockerfile
+    depends_on:
+      - postgres
+      - python
+    volumes:
+      - ${PROJECT_VOLUME_SPA}:/spa:cached
+    ports:
+      - "80:8080"
+    networks:
+      - flask-network
+    entrypoint: ['npm', 'run', 'serve']
+
 
 volumes:
   flask_db_volume:

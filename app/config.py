@@ -1,24 +1,41 @@
 import os
 from dotenv import load_dotenv
 from ultralytics import YOLO
-
+from database import connection
 load_dotenv()
 
 CAMERA_LOGIN = os.environ['CAMERA_LOGIN']
 CAMERA_PASSWORD = os.environ['CAMERA_PASSWORD']
 
-URL = f'rtsp://{CAMERA_LOGIN}:{CAMERA_PASSWORD}@192.168.1.108:554/cam/realmonitor?channel=1&subtype=0'
+model = YOLO("weights/best.pt", task="detect")
+pose = YOLO("weights/yolov8m-pose.pt")
 
-model = YOLO("weights/best.pt")
+
+DRAW_HUMAN_BBOX = True
+DRAW_SIZ_BBOX = True
+
+RTSP_URL = f'rtsp://{CAMERA_LOGIN}:{CAMERA_PASSWORD}@192.168.1.108:554/cam/realmonitor?channel=1&subtype=0'
+
+bx = {
+    "hood": [0, 1, 2, 3, 4],
+    "glasses": [1, 2],
+    "mask": [0],
+    "suit": [5, 6, 11, 12, 13, 14],
+    "glove": [9, 10],
+    "shoe": [15, 16]
+}
+
+db_conn = connection()
 
 
+#
 # @dataclass
 # class Config:
 #     CAMERA_LOGIN: str
 #     CAMERA_PASSWORD: str
 #     URL: str
 #     model: YOLO
-#
+
 #
 # def load_config() -> Config:
 #     load_dotenv()
