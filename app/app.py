@@ -9,6 +9,7 @@ from multiprocessing import Process, Manager
 
 from video import Value, camera
 from routers import admin
+from bot.main import *
 
 app = FastAPI()
 app.include_router(admin.router)
@@ -42,13 +43,13 @@ async def send():
                 "humans": results.value
             })
 
-        await asyncio.sleep(0.3)
+        await asyncio.sleep(0.1)
 
 
 @app.on_event('startup')
 async def start():
-    x = Process(target=camera, args=(image, results))
-    x.start()
+    Process(target=camera, args=(image, results)).start()
+    Process(target=start_bot, args=(image, )).start()
 
     asyncio.create_task(send())
 

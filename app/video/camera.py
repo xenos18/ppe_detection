@@ -10,7 +10,7 @@ double = ["glove", "shoe"]
 
 
 def camera(image: Value, results: Value):
-    vid = VideoCapture(0)
+    vid = VideoCapture(RTSP_URL)
     while True:
         frame = vid.read()
 
