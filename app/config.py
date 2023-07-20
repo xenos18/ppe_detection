@@ -1,7 +1,6 @@
 import os
 from dotenv import load_dotenv
 from ultralytics import YOLO
-from database import connection
 load_dotenv()
 
 CAMERA_LOGIN = os.environ['CAMERA_LOGIN']
@@ -25,10 +24,7 @@ bx = {
     "shoe": [15, 16]
 }
 
-db_conn = connection()
 
-
-#
 # @dataclass
 # class Config:
 #     CAMERA_LOGIN: str

@@ -2,4 +2,4 @@ app/.env
 .idea
 .env
 venv
-app/weights/*.pt
+app/weights/yolov8m-pose.pt

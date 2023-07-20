@@ -1,7 +1,8 @@
 import {createRouter, createWebHistory} from 'vue-router'
 import CameraCV from "@/components/CameraCV";
-import TableJournal from "@/components/TableJournal";
+import LocationTable from "@/components/LocationTable";
 import MainStand from "@/components/StandApp/MainStand";
+import EventsTable from "@/components/EventsTable";
 
 const routes = [
     {
@@ -20,7 +21,15 @@ const routes = [
     {
         path: '/table',
         name: 'table',
-        component: TableJournal,
+        component: LocationTable,
+        meta:{
+            layout: "admin-layout"
+        }
+    },
+    {
+        path: '/events',
+        name: 'events',
+        component: EventsTable,
         meta:{
             layout: "admin-layout"
         }

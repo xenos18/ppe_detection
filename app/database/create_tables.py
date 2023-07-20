@@ -19,10 +19,6 @@ def _init():
     return create_engine(db_path)
 
 
-def connection():
-    SessionClass = sessionmaker(bind=_init())
-    return SessionClass()
-
 
 if __name__ == '__main__':
     Base.metadata.create_all(_init())
