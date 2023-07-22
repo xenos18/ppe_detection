@@ -48,26 +48,6 @@ class Sequence:
             c = classes[int(results[0].boxes.cls[i])]
             if 'no_' not in c and c in self.seq_list:
                 self.yes_objects_now.append(c)
-            cv2.rectangle(
-                img,
-                list(map(int, results[0].boxes.xyxy[i][:2].tolist())),
-                list(map(int, results[0].boxes.xyxy[i][2:].tolist())),
-                (0, 0, 255) if "no_" in c else (0, 255, 0),
-                4
-            )
-
-            xn, yn = map(int, results[0].boxes.xyxy[i][:2].tolist())
-
-            cv2.putText(
-                img,
-                c,
-                (xn, yn),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                1,
-                (255, 255, 255),
-                1,
-                cv2.LINE_AA
-            )
         self.update_sequence()
         self.img = img
 

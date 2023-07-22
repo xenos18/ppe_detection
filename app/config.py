@@ -14,6 +14,9 @@ DRAW_HUMAN_BBOX = False
 DRAW_SIZ_BBOX = True
 DRAW_SINGLE_HUMAN_BBOX = False
 
+FUNC_B = 0.2
+FUNC_Q = 1 - FUNC_B
+
 RTSP_URL = f'rtsp://{CAMERA_LOGIN}:{CAMERA_PASSWORD}@192.168.1.108:554/cam/realmonitor?channel=1&subtype=0'
 
 bx = {
@@ -24,6 +27,10 @@ bx = {
     "glove": [9, 10],
     "shoe": [15, 16]
 }
+
+double = ["glove", "shoe"]
+
+MODEL_CONF = 0.5
 
 
 # @dataclass
