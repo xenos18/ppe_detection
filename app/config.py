@@ -6,8 +6,8 @@ load_dotenv()
 CAMERA_LOGIN = os.environ['CAMERA_LOGIN']
 CAMERA_PASSWORD = os.environ['CAMERA_PASSWORD']
 
-model = YOLO("weights/best.pt", task="detect")
-pose = YOLO("weights/yolov8m-pose.pt")
+model = YOLO("video/weights/best.pt", task="detect")
+pose = YOLO("video/weights/yolov8s-pose.pt")
 
 
 DRAW_HUMAN_BBOX = True

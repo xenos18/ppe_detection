@@ -1,12 +1,18 @@
-
 from multiprocessing import Value
 from shapely.geometry import *
-from .VideoCapture import *
+from video.VideoCapture import *
 from config import *
+import json
+from video.sequence import Sequence
+from datetime import datetime
 
 
 items = bx.keys()
 double = ["glove", "shoe"]
+MODEL_CONF = 0.5
+with open('sequence/seq.json') as file:
+    seq = json.load(file)["sequence"]
+seq = Sequence(seq)
 
 
 def camera(image: Value, results: Value):
@@ -17,7 +23,7 @@ def camera(image: Value, results: Value):
         if frame is None:
             continue
 
-        box_results = model.predict(source=frame, conf=0.5, verbose=False)
+        box_results = model.predict(source=frame, conf=MODEL_CONF, verbose=False)
         pose_results = pose.track(source=frame, conf=0.4, persist=True, verbose=False)
 
         img = box_results[0].orig_img
@@ -127,6 +133,19 @@ def camera(image: Value, results: Value):
             if w * h > mx_a:
                 mx_a = w * h
                 mx_v = i
+        if seq.frame_count == 0:
+            seq.id_now = mx_v
+            seq.time_in = datetime.now()
+            seq.prediction(box_results)
+        else:
+            if seq.id_now != mx_v:
+                seq.time_out = datetime.now()
+                seq.add_event()
+                seq.id_now = mx_v
+                seq.create_check_dict()
+                seq.prediction(box_results)
+            else:
+                seq.prediction(box_results)
 
         image.value = cv2.imencode('.jpg', img)[1].tobytes()
         results.value = list(map(lambda x: x["correct"], in_results))[mx_v:mx_v+1]

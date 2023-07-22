@@ -1,7 +1,7 @@
-<<<<<<< HEAD
-from sqlalchemy import create_engine, ForeignKey, select
-from sqlalchemy.orm import Session
-from models import Base, Location, ShEvent, LabEvent
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from .models import Base
+from sqlalchemy.engine import URL
 from dotenv import load_dotenv
 import os
 
@@ -10,16 +10,6 @@ load_dotenv()
 url = f'postgresql+psycopg2://{os.environ["POSTGRES_USER"]}:{os.environ["POSTGRES_PASSWORD"]}@{os.environ["POSTGRES_HOST"]}:' \
       f'{os.environ["POSTGRES_PORT"]}/{os.environ["POSTGRES_DATABASE"]}'
 engine = create_engine(url)
-
-if __name__ == '__main__':
-    Base.metadata.create_all(engine)
-=======
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from .models import Base
-from sqlalchemy.engine import URL
-from dotenv import load_dotenv
-import os
 
 
 def _init():
@@ -35,7 +25,5 @@ def _init():
     return create_engine(db_path)
 
 
-
 if __name__ == '__main__':
     Base.metadata.create_all(_init())
->>>>>>> origin/develop_mvp

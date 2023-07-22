@@ -1,4 +1,4 @@
-from processing import Model
+from sequence import Model
 import json
 import cv2
 
