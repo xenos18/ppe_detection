@@ -22,7 +22,7 @@ DIST_THRESHOLD = 100
 
 def camera(image: Value, results: Value):
 
-    vid = VideoCapture(RTSP_URL)
+    vid = VideoCapture(0)
     print('Camera Working')
 
     while True:
@@ -180,5 +180,3 @@ def camera(image: Value, results: Value):
         # image.value = b64_src + processed_img_data
 
         results.value = list(map(lambda x: x["correct"], in_results))[mx_v:mx_v+1]
-
-

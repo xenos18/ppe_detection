@@ -134,4 +134,3 @@ class Sequence:
         filename = f'../save_frames/shluse/{max_ind + 1}.jpg'
         cv2.imwrite(filename, self.img)
         add_sh_event(str(self.time_in), str(self.time_out), self.check_seq, filename)
-

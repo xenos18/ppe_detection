@@ -1,7 +1,4 @@
 from database import run
-
-run()
-
 import asyncio
 # from contextlib import asynccontextmanager
 import random
@@ -16,10 +13,13 @@ from video import Value, camera
 from routers import admin
 from bot import start_bot
 
+run()
+
 image: Value
 results: Value
 
 ws_dict: Dict[int, WebSocket] = {}
+
 
 async def send():
     while True:
@@ -27,7 +27,7 @@ async def send():
             ws = ws_dict[ws_id]
             if image.value is None:
                 continue
-            
+
             try:
                 await ws.send_bytes(image.value)
                 await ws.send_json({
@@ -39,6 +39,7 @@ async def send():
                 print(f"Ooops! {e}")
 
         await asyncio.sleep(0.25)
+
 
 # @asynccontextmanager
 # async def lifespan(app: FastAPI):
@@ -67,7 +68,7 @@ manager: Manager
 @app.on_event('startup')
 async def start():
     Process(target=camera, args=(image, results)).start()
-    Process(target=start_bot, args=(image, )).start()
+    Process(target=start_bot, args=(image,)).start()
 
     asyncio.create_task(send())
 
@@ -90,10 +91,11 @@ async def stream(ws: WebSocket):
         del ws_dict[ws_id]
         print(f"{ws_id} disconnected")
 
-if __name__ == "__main__":    
+
+if __name__ == "__main__":
     manager = Manager()
     image = manager.Value("image", None)
     results = manager.Value("results", None)
 
-    uvicorn.run(app, port=8500, host='0.0.0.0')
-    # uvicorn.run(app, port=5000, host='127.0.0.1')
+    # uvicorn.run(app, port=8500, host='0.0.0.0')
+    uvicorn.run(app, port=5000, host='127.0.0.1')

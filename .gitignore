@@ -3,3 +3,5 @@ app/.env
 .env
 venv
 app/weights/yolov8m-pose.pt
+*.xml
+/save_frames/shluse/*.jpg
