@@ -3,7 +3,7 @@ import config
 from database.models import LabEvent, ShEvent
 from database.main_db import add_sh_event
 import os
-
+from pathlib import Path
 
 class Sequence:
     last_objects = list()
@@ -38,10 +38,9 @@ class Sequence:
             if self.check_dict[self.seq_list[i]] != -1:
                 self.check_dict[self.seq_list[i]] = 0
 
-    def prediction(self, frame):
+    def prediction(self, results):
         self.frame_count += 1
         self.yes_objects_now = list()
-        results = self.model.predict(source=frame, conf=0.4, verbose=False)
 
         img = results[0].orig_img
         classes = results[0].names
@@ -126,11 +125,13 @@ class Sequence:
 
     def add_event(self):
         max_ind = 0
+        
+        Path('../save_frames/shluse/').mkdir(parents=True, exist_ok=True)
         for filename in os.listdir('../save_frames/shluse/'):
-            ind = int(filename[:-3])
+            ind = int(filename[:-4])
             if ind > max_ind:
                 max_ind = ind
         filename = f'../save_frames/shluse/{max_ind + 1}.jpg'
         cv2.imwrite(filename, self.img)
-        add_sh_event(self.time_in, self.time_out, self.check_seq, filename)
+        add_sh_event(str(self.time_in), str(self.time_out), self.check_seq, filename)
 
