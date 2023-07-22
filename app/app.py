@@ -43,6 +43,7 @@ async def send():
                 "humans": results.value
             })
 
+        # print(ws_dict.keys())
         await asyncio.sleep(0.1)
 
 
@@ -56,6 +57,7 @@ async def start():
 
 @app.websocket("/stream")
 async def stream(ws: WebSocket):
+    print("aa")
     await ws.accept()
 
     ws_id = random.randint(0, 1 << 30)
