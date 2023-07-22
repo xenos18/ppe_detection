@@ -74,6 +74,7 @@ async def start():
 
 @app.websocket("/stream")
 async def stream(ws: WebSocket):
+    print("aa")
     await ws.accept()
 
     ws_id = random.randint(0, 1 << 30)
@@ -88,7 +89,6 @@ async def stream(ws: WebSocket):
     except:
         del ws_dict[ws_id]
         print(f"{ws_id} disconnected")
-
 
 if __name__ == "__main__":    
     manager = Manager()
