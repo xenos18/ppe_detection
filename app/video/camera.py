@@ -43,14 +43,13 @@ def camera(image: Value, results: Value):
 
             min_dist = float("inf")
             min_v = -1
-
             p = Polygon(
                 [[x0, y0], [x1, y0], [x1, y1], [x0, y1]])
             for j in range(len(humans)):
                 for k in bx[c.replace("no_", "")]:
                     if k >= len(humans[j]):
                         continue
-                    d = p.distance(Point(humans[j][k]))
+                    d = p.distance(Point(humans[j][k].to("cpu")))
 
                     if d < min_dist:
                         min_dist = d
