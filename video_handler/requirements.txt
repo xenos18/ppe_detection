@@ -1,0 +1,9 @@
+numpy~=1.25.1
+opencv-python~=4.8.0.74
+ultralytics~=8.0.135
+shapely~=2.0.1
+websockets
+py-cpuinfo
+python-dotenv~=1.0.0
+ffmpeg-python
+asyncio

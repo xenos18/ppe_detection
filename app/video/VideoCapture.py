@@ -17,8 +17,7 @@ class VideoCapture:
     prev = time.time()
 
     def __init__(self, name):
-        self.url = name
-        self.cap = cv2.VideoCapture(self.url)
+        self.cap = cv2.VideoCapture(name)
         self.q = queue.Queue()
 
         t = threading.Thread(target=self._reader)
@@ -44,38 +43,38 @@ class VideoCapture:
 
         return self.q.get()
     
-    def ffmpeg_reader(self):
-        probe = ffmpeg.probe(self.url)
-        cap_info = next(x for x in probe['streams'] if x['codec_type'] == 'video')
-        width = cap_info['width']
-        height = cap_info['height']
-
-        process1 = (
-            ffmpeg
-            .input(self.url, **self.args)
-            .output('pipe:', format='rawvideo', pix_fmt='rgb24')
-            .overwrite_output()
-            .run_async(pipe_stdout=True)
-        )
-
-        while True:
-            in_bytes = process1.stdout.read(width * height * 3)
-            if not in_bytes:
-                break
-
-            in_frame = (
-                np
-                .frombuffer(in_bytes, np.uint8)
-                .reshape([height, width, 3])
-            )
-
-            frame = cv2.cvtColor(in_frame, cv2.COLOR_RGB2BGR)
-
-            if not self.q.empty():
-                try:
-                    self.q.get_nowait()
-                except queue.Empty:
-                    pass
-            self.q.put(frame)
-
-        process1.kill()
+    # def ffmpeg_reader(self):
+    #     probe = ffmpeg.probe(self.url)
+    #     cap_info = next(x for x in probe['streams'] if x['codec_type'] == 'video')
+    #     width = cap_info['width']
+    #     height = cap_info['height']
+    #
+    #     process1 = (
+    #         ffmpeg
+    #         .input(self.url, **self.args)
+    #         .output('pipe:', format='rawvideo', pix_fmt='rgb24')
+    #         .overwrite_output()
+    #         .run_async(pipe_stdout=True)
+    #     )
+    #
+    #     while True:
+    #         in_bytes = process1.stdout.read(width * height * 3)
+    #         if not in_bytes:
+    #             break
+    #
+    #         in_frame = (
+    #             np
+    #             .frombuffer(in_bytes, np.uint8)
+    #             .reshape([height, width, 3])
+    #         )
+    #
+    #         frame = cv2.cvtColor(in_frame, cv2.COLOR_RGB2BGR)
+    #
+    #         if not self.q.empty():
+    #             try:
+    #                 self.q.get_nowait()
+    #             except queue.Empty:
+    #                 pass
+    #         self.q.put(frame)
+    #
+    #     process1.kill()

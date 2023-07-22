@@ -9,8 +9,10 @@ items = bx.keys()
 double = ["glove", "shoe"]
 
 
-def camera(image: Value, results: Value):
+async def camera(websocket):
     vid = VideoCapture(RTSP_URL)
+    az = 1
+    print(1)
     while True:
         frame = vid.read()
 
@@ -127,6 +129,8 @@ def camera(image: Value, results: Value):
             if w * h > mx_a:
                 mx_a = w * h
                 mx_v = i
-
-        image.value = cv2.imencode('.jpg', img)[1].tobytes()
-        results.value = list(map(lambda x: x["correct"], in_results))[mx_v:mx_v+1]
+        greeting = f'Привет {az}'
+        await websocket.send(greeting)
+        az += 1
+        # image.value = cv2.imencode('.jpg', img)[1].tobytes()
+        # results.value = list(map(lambda x: x["correct"], in_results))[mx_v:mx_v+1]

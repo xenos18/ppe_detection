@@ -31,9 +31,3 @@ async def read_events(db: Session = Depends(get_db)):
     resource = [i.serialize() for i in get_location(db)]
     json_compatible_item_data = jsonable_encoder(resource)
     return JSONResponse(content=json_compatible_item_data)
-
-#
-#
-# @router.get("/users/{username}", tags=["users"])
-# async def read_user(username: str):
-#     return {"username": username}

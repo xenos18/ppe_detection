@@ -1,0 +1,6 @@
+psycopg2-binary
+sqlalchemy
+websockets
+python-dotenv~=1.0.0
+telebot
+aiohttp

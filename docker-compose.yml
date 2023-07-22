@@ -19,7 +19,7 @@ services:
     volumes:
       - ${PROJECT_VOLUME_SRC}:/app:cached
     ports:
-      - "8500:5000"
+      - "5000:5000"
     networks:
       - flask-network
 
@@ -47,10 +47,26 @@ services:
     volumes:
       - ${PROJECT_VOLUME_SPA}:/spa:cached
     ports:
-      - "80:8080"
+      - "8080:8080"
     networks:
       - flask-network
     entrypoint: ['npm', 'run', 'serve']
+
+
+  bot:
+    container_name: bot-app
+    build:
+      context: .
+      dockerfile: Docker/bot/Dockerfile
+    depends_on:
+      - postgres
+    volumes:
+      - ${PROJECT_VOLUME_BOT}:/bot:cached
+    networks:
+      - flask-network
+
+
+
 
 
 volumes:
