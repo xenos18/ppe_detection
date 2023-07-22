@@ -7,15 +7,6 @@ def connect_db():
     return conn
 
 
-def create_db():
-    """Вспомогательная функция для создания таблиц БД """
-    db = connect_db()
-    with open("sql_structure.sql", mode="r") as f:
-        db.cursor().executescript(f.read())
-    db.commit()
-    db.close()
-
-
 class DataBase:
     def __init__(self, database=None):
         if database is None:
@@ -24,22 +15,19 @@ class DataBase:
         self.__db = database
         self.__cur = database.cursor()
 
-    def add_user(self, telegram_id, username, balance, admin):
+    def add_user(self, telegram_id, last_usage):
         try:
-            self.__cur.execute("INSERT INTO users VALUES (?, ?, ?, ?)",
-                               (telegram_id, username, balance, admin))
+            self.__cur.execute("INSERT INTO users VALUES (?, ?, ?)",
+                               (telegram_id, 0, last_usage))
             self.__db.commit()
         except Exception as e:
             print('Ошибка добавления в БД', e)
             return False
         return True
 
-    def update_balance(self, balance, **kwargs):
+    def add_usage(self, telegram_id, usages, last_usage):
         try:
-            balance = str(balance)
-            items = list(kwargs.items())[0]
-            promt = f"UPDATE users SET balance = '{balance}' WHERE {items[0]} = '{items[1]}'"
-            # print(promt)
+            promt = f"UPDATE users SET usages = '{usages}', last_usage = '{last_usage}' WHERE telegram_id = '{telegram_id}'"
             self.__cur.execute(promt)
             self.__db.commit()
         except Exception as e:
@@ -47,27 +35,10 @@ class DataBase:
             return False
         return True
 
-    def get_user(self, **kwargs):  # <-- id=02
+    def get_user(self, telegram_id):
         try:
-            items = list(kwargs.items())[0]
-            self.__cur.execute(f"SELECT * FROM users WHERE {items[0]} = '{items[1]}'")
+            self.__cur.execute(f"SELECT * FROM users WHERE telegram_id = '{telegram_id}'")
             return self.__cur.fetchall()
         except Exception as e:
             print('Ошибка получения члена из БД', e)
             return False
-
-    def f(self):
-        try:
-            self.__cur.execute(f"UPDATE users SET admin = '1' WHERE username = 'DanielBobrov'")
-            self.__db.commit()
-            return self.__cur.fetchall()
-        except Exception as e:
-            print('Ошибка получения члена из БД', e)
-            return False
-
-
-if __name__ == "__main__":
-    db = DataBase()
-    print(db)
-    db.f()
-    print(db)

@@ -67,7 +67,7 @@ async def send_photo(message):
                                    f"Вы сможете воспользоваться ботом через {10 * (usages - 10) - cur_time + last_usage} с.")
         else:
             data_base.add_usage(user["telegram_id"], usages + 1, cur_time)
-            await delay(7, chat_id=message.chat.id)
+            await delay(4, chat_id=message.chat.id)
             with open(image, "rb") as photo:
                 await bot.send_photo(message.chat.id, photo, caption=random.choice(jokes))
     except Exception as e:
