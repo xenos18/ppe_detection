@@ -1,4 +1,9 @@
+from database import run
+
+run()
+
 import asyncio
+# from contextlib import asynccontextmanager
 import random
 
 import uvicorn
@@ -9,8 +14,42 @@ from multiprocessing import Process, Manager
 
 from video import Value, camera
 from routers import admin
-from bot.main import *
+from bot import start_bot
 
+image: Value
+results: Value
+
+ws_dict: Dict[int, WebSocket] = {}
+
+async def send():
+    while True:
+        for ws_id in ws_dict.keys():
+            ws = ws_dict[ws_id]
+            if image.value is None:
+                continue
+            
+            try:
+                await ws.send_bytes(image.value)
+                await ws.send_json({
+                    "type": "detection",
+                    "ok": True,
+                    "humans": results.value
+                })
+            except Exception as e:
+                print(f"Ooops! {e}")
+
+        await asyncio.sleep(0.25)
+
+# @asynccontextmanager
+# async def lifespan(app: FastAPI):
+#     print("I'm here!")
+#     Process(target=camera, args=(image, results)).start()
+#     Process(target=start_bot, args=(image, )).start()
+
+#     asyncio.create_task(send())
+#     yield
+
+# app = FastAPI(lifespan=lifespan)
 app = FastAPI()
 app.include_router(admin.router)
 origins = ["*"]
@@ -23,27 +62,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 manager: Manager
-image: Value
-results: Value
-
-ws_dict: Dict[int, WebSocket] = {}
-
-
-async def send():
-    while True:
-        for ws_id in ws_dict.keys():
-            ws = ws_dict[ws_id]
-            if image.value is None:
-                continue
-
-            await ws.send_bytes(image.value)
-            await ws.send_json({
-                "type": "detection",
-                "ok": True,
-                "humans": results.value
-            })
-
-        await asyncio.sleep(0.1)
 
 
 @app.on_event('startup')
@@ -56,6 +74,7 @@ async def start():
 
 @app.websocket("/stream")
 async def stream(ws: WebSocket):
+    print("aa")
     await ws.accept()
 
     ws_id = random.randint(0, 1 << 30)
@@ -71,11 +90,10 @@ async def stream(ws: WebSocket):
         del ws_dict[ws_id]
         print(f"{ws_id} disconnected")
 
-
-if __name__ == "__main__":
+if __name__ == "__main__":    
     manager = Manager()
     image = manager.Value("image", None)
     results = manager.Value("results", None)
 
-    # uvicorn.run(app, port=5000, host='0.0.0.0')
-    uvicorn.run(app, port=5000, host='127.0.0.1')
+    uvicorn.run(app, port=8500, host='0.0.0.0')
+    # uvicorn.run(app, port=5000, host='127.0.0.1')

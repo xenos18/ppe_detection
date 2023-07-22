@@ -10,8 +10,9 @@ model = YOLO("video/weights/best.pt", task="detect")
 pose = YOLO("video/weights/yolov8s-pose.pt")
 
 
-DRAW_HUMAN_BBOX = True
+DRAW_HUMAN_BBOX = False
 DRAW_SIZ_BBOX = True
+DRAW_SINGLE_HUMAN_BBOX = False
 
 RTSP_URL = f'rtsp://{CAMERA_LOGIN}:{CAMERA_PASSWORD}@192.168.1.108:554/cam/realmonitor?channel=1&subtype=0'
 

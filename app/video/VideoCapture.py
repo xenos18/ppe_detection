@@ -38,9 +38,9 @@ class VideoCapture:
             self.q.put(frame)
 
     def read(self):
-        # now = time.time()
-        # print(f"\rSpeed: {now - self.prev}", end="")
-        # self.prev = now
+        now = time.time()
+        print(f"\rSpeed: {now - self.prev}", end="")
+        self.prev = now
 
         return self.q.get()
     
