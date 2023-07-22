@@ -1,3 +1,0 @@
-docker build -t flask-yolo .
-
-docker run --name flask-yolo -d -v /c/python/SiriuzSIZ/app:/app -p 8500:5000 flask-yolo

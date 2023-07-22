@@ -1,5 +1,8 @@
+<<<<<<< HEAD
 from typing import List
 from typing import Optional
+=======
+>>>>>>> origin/develop_mvp
 from sqlalchemy import ForeignKey
 from sqlalchemy import String
 from sqlalchemy.orm import DeclarativeBase
@@ -23,6 +26,17 @@ class Location(Base):
     def __repr__(self) -> str:
         return f"Location(id={self.id!r}, type={self.type!r}, place={self.place!r})"
 
+<<<<<<< HEAD
+=======
+    def serialize(self):
+        return {
+            'id': self.id,
+            'type': self.type,
+            'place': self.place,
+
+        }
+
+>>>>>>> origin/develop_mvp
 
 class LabEvent(Base):
     __tablename__ = "log_table_lab"
@@ -50,4 +64,8 @@ class ShEvent(Base):
 
     def __repr__(self) -> str:
         return f"LabEvent(id={self.id!r}, time_in={self.time_in!r}), time_out={self.time_out!r}), " \
+<<<<<<< HEAD
                f"check_seq={self.check_seq!r}), sequence={self.sequence!r}), frame={self.frame!r}), location={self.location!r})"
+=======
+               f"check_seq={self.check_seq!r}), sequence={self.sequence!r}), frame={self.frame!r}), location={self.location!r})"
+>>>>>>> origin/develop_mvp
