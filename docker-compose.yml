@@ -54,7 +54,6 @@ services:
       - flask-network
     entrypoint: ['npm', 'run', 'serve']
 
-
 volumes:
   flask_db_volume:
     external: false

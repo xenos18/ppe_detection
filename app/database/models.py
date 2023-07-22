@@ -1,3 +1,5 @@
+from typing import List
+from typing import Optional
 from sqlalchemy import ForeignKey
 from sqlalchemy import String
 from sqlalchemy.orm import DeclarativeBase
@@ -50,7 +52,6 @@ class ShEvent(Base):
     time_in: Mapped[str] = mapped_column(String(50))
     time_out: Mapped[str] = mapped_column(String(50))
     check_seq: Mapped[bool]
-    sequence: Mapped[str] = mapped_column(String(100))
     frame: Mapped[str] = mapped_column(String(100))
     location: Mapped[int] = mapped_column(ForeignKey("locations.id"))
 

@@ -5,6 +5,12 @@ from sqlalchemy.engine import URL
 from dotenv import load_dotenv
 import os
 
+load_dotenv()
+
+url = f'postgresql+psycopg2://{os.environ["POSTGRES_USER"]}:{os.environ["POSTGRES_PASSWORD"]}@{os.environ["POSTGRES_HOST"]}:' \
+      f'{os.environ["POSTGRES_PORT"]}/{os.environ["POSTGRES_DATABASE"]}'
+engine = create_engine(url)
+
 
 def _init():
     load_dotenv()
@@ -20,6 +26,7 @@ def _init():
 
 def run():
     Base.metadata.create_all(_init())
+
 
 if __name__ == '__main__':
     run()
