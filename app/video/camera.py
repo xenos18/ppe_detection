@@ -57,27 +57,29 @@ def camera(image: Value, results: Value):
             if min_v >= 0:
                 in_results[min_v]["items"][c.replace("no_", "")].append(i)
 
-                track_id = int(pose_results[0].boxes[min_v].id)
+                if pose_results[0].boxes[min_v].id is not None:
 
-                if DRAW_SIZ_BBOX:
-                    cv2.rectangle(
-                        img,
-                        (x0, y0),
-                        (x1, y1),
-                        (0, 0, 255) if "no_" in c else (0, 255, 0),
-                        4
-                    )
+                    track_id = int(pose_results[0].boxes[min_v].id)
 
-                    cv2.putText(
-                        img,
-                        f"{c} (id = {track_id})",
-                        (x0, y0),
-                        cv2.FONT_HERSHEY_SIMPLEX,
-                        1,
-                        (255, 255, 255),
-                        1,
-                        cv2.LINE_AA
-                    )
+                    if DRAW_SIZ_BBOX:
+                        cv2.rectangle(
+                            img,
+                            (x0, y0),
+                            (x1, y1),
+                            (0, 0, 255) if "no_" in c else (0, 255, 0),
+                            4
+                        )
+
+                        cv2.putText(
+                            img,
+                            f"{c} (id = {track_id})",
+                            (x0, y0),
+                            cv2.FONT_HERSHEY_SIMPLEX,
+                            1,
+                            (255, 255, 255),
+                            1,
+                            cv2.LINE_AA
+                        )
 
         for i in range(len(in_results)):
             x0, y0, x1, y1 = map(int, pose_results[0].boxes.xyxy[i])
@@ -93,7 +95,7 @@ def camera(image: Value, results: Value):
 
                 cv2.putText(
                     img,
-                    str(int(pose_results[0].boxes[i].id)),
+                    str(int(pose_results[0].boxes[i].id)) if pose_results[0].boxes[i].id is not None else "no_track",
                     (x0, y0),
                     cv2.FONT_HERSHEY_SIMPLEX,
                     1,
@@ -117,5 +119,13 @@ def camera(image: Value, results: Value):
                     in_results[i]["correct"][f"right_{k}"] = len(in_results[i]["items"][k]) > 1 and "no_" not in \
                                                              detected_cls[in_results[i]["items"][k][1]]
 
+        mx_v = 0
+        mx_a = 0
+        for i in range(len(in_results)):
+            _, _, w, h = pose_results[0].boxes.xyxy[i]
+            if w * h > mx_a:
+                mx_a = w * h
+                mx_v = i
+
         image.value = cv2.imencode('.jpg', img)[1].tobytes()
-        results.value = list(map(lambda x: x["correct"], in_results))
+        results.value = list(map(lambda x: x["correct"], in_results))[mx_v:mx_v+1]

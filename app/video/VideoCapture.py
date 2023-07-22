@@ -1,3 +1,5 @@
+import time
+
 import cv2
 import threading
 import queue
@@ -11,6 +13,8 @@ class VideoCapture:
         "fflags": "nobuffer",
         "flags": "low_delay"
     }
+
+    prev = time.time()
 
     def __init__(self, name):
         self.url = name
@@ -34,6 +38,10 @@ class VideoCapture:
             self.q.put(frame)
 
     def read(self):
+        # now = time.time()
+        # print(f"\rSpeed: {now - self.prev}", end="")
+        # self.prev = now
+
         return self.q.get()
     
     def ffmpeg_reader(self):
