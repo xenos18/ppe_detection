@@ -10,3 +10,6 @@ py-cpuinfo
 python-dotenv~=1.0.0
 sqlalchemy
 psycopg2-binary
+ffmpeg-python
+telebot
+aiohttp

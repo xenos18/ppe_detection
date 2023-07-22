@@ -18,7 +18,8 @@ def _init():
     )
     return create_engine(db_path)
 
-
+def run():
+    Base.metadata.create_all(_init())
 
 if __name__ == '__main__':
-    Base.metadata.create_all(_init())
+    run()

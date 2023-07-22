@@ -3,7 +3,7 @@ from multiprocessing import Value
 from shapely.geometry import *
 from .VideoCapture import *
 from config import *
-
+import base64
 
 items = bx.keys()
 double = ["glove", "shoe"]
@@ -11,6 +11,7 @@ double = ["glove", "shoe"]
 
 def camera(image: Value, results: Value):
     vid = VideoCapture(RTSP_URL)
+    print('Camera Working')
     while True:
         frame = vid.read()
 
@@ -128,4 +129,11 @@ def camera(image: Value, results: Value):
                 mx_v = i
 
         image.value = cv2.imencode('.jpg', img)[1].tobytes()
+
+             
+        
+        # processed_img_data = base64.b64encode(cv2.imencode('.jpg', img)[1]).decode()
+        # b64_src = "data:image/jpg;base64,"
+        # image.value = b64_src + processed_img_data
+
         results.value = list(map(lambda x: x["correct"], in_results))[mx_v:mx_v+1]
