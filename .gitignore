@@ -2,6 +2,12 @@ app/.env
 .idea
 .env
 venv
+env
 app/weights/yolov8m-pose.pt
 *.xml
 /save_frames/shluse/*.jpg
+app/__pycache__/*
+*.pyc
+app/__pycache__/config.cpython-311.pyc
+app/database.db
+app/bot/database.db

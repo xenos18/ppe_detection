@@ -27,7 +27,7 @@ frameID = 0
 def camera(image: Value, results: Value):
     global frameID
 
-    vid = VideoCapture(1)
+    vid = VideoCapture(RTSP_URL)
     print('Camera Working')
 
     while True:
