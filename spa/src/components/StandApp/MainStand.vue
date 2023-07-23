@@ -1,6 +1,7 @@
 <template>
 
   <div class="main_container">
+    <!-- <img id="logo" src="@/assets/images/logo.jpg"> -->
     <img id="stream" class="video"/>
     <img id="human" :src="main" class="human"/>
   </div>
@@ -14,6 +15,7 @@ export default {
     return {
       main: require('@/assets/images/human/00000000.png'),
       socket: null,
+      url: null,
     }
   },
   mounted() {
@@ -31,6 +33,11 @@ export default {
     },
     onSocketMessage(e) {
       if (e.data instanceof Blob) {
+        // (window.URL || window.webkitURL).revokeObjectURL(this.url);
+        // window.gc && window.gc();
+        // // console.log(this.url);
+        // this.url = (window.URL || window.webkitURL).createObjectURL(e.data);
+
         document.getElementById("stream").src = (window.URL || window.webkitURL).createObjectURL(e.data);
         return;
       }
@@ -47,6 +54,8 @@ export default {
           break
         }
       }
+      // data = null;
+      // window.gc && window.gc();
     },
     onSocketClose() {
       console.log('WebSocket connection closed. Reconnecting...');
@@ -75,6 +84,7 @@ export default {
 .video {
   grid-area: video;
   width: 100%;
+  padding-left: 8%;
 }
 
 .human {;
