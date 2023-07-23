@@ -38,31 +38,26 @@ class Sequence:
             if self.check_dict[self.seq_list[i]] != -1:
                 self.check_dict[self.seq_list[i]] = 0
 
-    def prediction(self, frame):
+    def prediction(self, results, img):
         self.frame_count += 1
         self.yes_objects_now = list()
-        results = self.model.predict(source=frame, conf=0.4, verbose=False)
 
-        img = results[0].orig_img
-        classes = results[0].names
-        for i in range(len(results[0].boxes.cls)):
-            c = classes[int(results[0].boxes.cls[i])]
-            if 'no_' not in c and c in self.seq_list:
+        for i in range(len(results)):
+            c = results[i][-1]
+            if 'no_' not in c:
                 self.yes_objects_now.append(c)
             cv2.rectangle(
                 img,
-                list(map(int, results[0].boxes.xyxy[i][:2].tolist())),
-                list(map(int, results[0].boxes.xyxy[i][2:].tolist())),
+                (results[i][0][0], results[i][0][1]),
+                (results[i][1][0], results[i][1][1]),
                 (0, 0, 255) if "no_" in c else (0, 255, 0),
                 4
             )
 
-            xn, yn = map(int, results[0].boxes.xyxy[i][:2].tolist())
-
             cv2.putText(
                 img,
                 c,
-                (xn, yn),
+                (results[i][0][0], results[i][0][1]),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 1,
                 (255, 255, 255),
@@ -126,11 +121,11 @@ class Sequence:
 
     def add_event(self):
         max_ind = 0
-        for filename in os.listdir('../save_frames/shluse/'):
-            ind = int(filename[:-3])
+        for filename in os.listdir('save_frames/shluse/'):
+            ind = int(filename[:-4])
             if ind > max_ind:
                 max_ind = ind
-        filename = f'../save_frames/shluse/{max_ind + 1}.jpg'
+        filename = f'save_frames/shluse/{max_ind + 1}.jpg'
         cv2.imwrite(filename, self.img)
-        add_sh_event(self.time_in, self.time_out, self.check_seq, filename)
+        add_sh_event(str(self.time_in), str(self.time_out), self.check_seq, filename)
 

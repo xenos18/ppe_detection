@@ -1,6 +1,8 @@
 import os
 from dotenv import load_dotenv
 from ultralytics import YOLO
+import json
+from video.sequence import Sequence
 load_dotenv()
 
 CAMERA_LOGIN = os.environ['CAMERA_LOGIN']
@@ -8,10 +10,16 @@ CAMERA_PASSWORD = os.environ['CAMERA_PASSWORD']
 
 model = YOLO("video/weights/best.pt", task="detect")
 pose = YOLO("video/weights/yolov8s-pose.pt")
+with open('sequence/seq.json') as file:
+    seq = json.load(file)["sequence"]
+seq = Sequence(seq)
 
-
-DRAW_HUMAN_BBOX = True
+DRAW_HUMAN_BBOX = False
 DRAW_SIZ_BBOX = True
+DRAW_SINGLE_HUMAN_BBOX = False
+
+FUNC_B = 0.2
+FUNC_Q = 1 - FUNC_B
 
 RTSP_URL = f'rtsp://{CAMERA_LOGIN}:{CAMERA_PASSWORD}@192.168.1.108:554/cam/realmonitor?channel=1&subtype=0'
 
@@ -20,9 +28,22 @@ bx = {
     "glasses": [1, 2],
     "mask": [0],
     "suit": [5, 6, 11, 12, 13, 14],
-    "glove": [9, 10],
-    "shoe": [15, 16]
+    "left_glove": [9],
+    "right_glove": [10],
+    "left_shoe": [15],
+    "right_shoe": [16]
 }
+
+bx_ref = {
+    "hood": ["hood"],
+    "glasses": ["glasses"],
+    "mask": ["mask"],
+    "suit": ["suit"],
+    "glove": ["left_glove", "right_glove"],
+    "shoe": ["left_shoe", "right_shoe"]
+}
+
+MODEL_CONF = 0.5
 
 
 # @dataclass

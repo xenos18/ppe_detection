@@ -22,3 +22,13 @@ def add_sh_event(time_in, time_out, check_seq, frame):
             )
             session.add(sh_event)
             session.commit()
+
+
+def add_location(type, place):
+      with Session(engine) as session:
+            loc = Location(
+                  type=type,
+                  place=place
+            )
+            session.add(loc)
+            session.commit()

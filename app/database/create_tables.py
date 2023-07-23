@@ -1,6 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from .models import Base
+from .main_db import add_location
 from sqlalchemy.engine import URL
 from dotenv import load_dotenv
 import os
@@ -13,7 +14,6 @@ engine = create_engine(url)
 
 
 def _init():
-    load_dotenv()
     db_path = URL.create(
         drivername="postgresql",
         username=os.getenv("POSTGRES_USER"),
@@ -22,8 +22,10 @@ def _init():
         database=os.getenv("POSTGRES_DATABASE"),
         password=os.getenv("POSTGRES_PASSWORD")
     )
+    add_location('gateway', 'one')
     return create_engine(db_path)
 
 
 if __name__ == '__main__':
     Base.metadata.create_all(_init())
+
