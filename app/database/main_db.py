@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine, ForeignKey, select
 from sqlalchemy.orm import Session
-from database.models import Base, Location, ShEvent, LabEvent
+from .models import Base, Location, ShEvent, LabEvent
 from dotenv import load_dotenv
 import os
 
@@ -22,3 +22,18 @@ def add_sh_event(time_in, time_out, check_seq, frame):
             )
             session.add(sh_event)
             session.commit()
+
+def add_location():
+      with Session(engine) as session:
+            sh_event = Location(
+                  type="Шлюз",
+                  place="Сириус",
+            
+            )
+            session.add(sh_event)
+            session.commit()
+
+
+if __name__ == "__main__":
+      print("Добавлем локацию")
+      add_location()

@@ -1,0 +1,1 @@
+docker compose up -d && source env/bin/activate && cd app && python3 app.py

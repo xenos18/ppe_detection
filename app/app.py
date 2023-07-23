@@ -121,5 +121,4 @@ if __name__ == "__main__":
     edited = manager.Value("edited", True)
     form = manager.Value("form", "Работаем")
 
-    # uvicorn.run(app, port=8500, host='0.0.0.0')
-    uvicorn.run(app, port=5000, host='127.0.0.1')
+    uvicorn.run(app, port=8500, host='0.0.0.0')
