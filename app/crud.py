@@ -12,3 +12,7 @@ def get_events_sh(db: Session):
 
 def get_events_lab(db: Session):
     return db.query(models.LabEvent).all()
+
+
+def get_events_sh_last(db: Session):
+    return db.query(models.ShEvent).all()[-3:][::-1]

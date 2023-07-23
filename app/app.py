@@ -8,17 +8,28 @@ from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Dict
 from multiprocessing import Process, Manager
-
+from sqlalchemy.orm import sessionmaker
+from database import _init
 from video import Value, camera
 from routers import admin
 from bot import start_bot
+from crud import get_events_sh_last
 
 run()
-
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=_init())
 image: Value
 results: Value
-
+edited: Value
+form: Value
 ws_dict: Dict[int, WebSocket] = {}
+
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
 async def send():
@@ -28,17 +39,28 @@ async def send():
             if image.value is None:
                 continue
 
+            data = {
+                "type": "detection",
+                "ok": True,
+                "humans": results.value,
+            }
+            if edited.value:
+                with SessionLocal() as sess:
+                    error = [i.serialize() for i in get_events_sh_last(sess)]
+                data['edited'] = error
+                edited.value = False
+            print(form.value)
+            if form.value:
+                data['form'] = form.value
+                form.value = ''
+
             try:
                 await ws.send_bytes(image.value)
-                await ws.send_json({
-                    "type": "detection",
-                    "ok": True,
-                    "humans": results.value
-                })
+                await ws.send_json(data)
             except Exception as e:
                 print(f"Ooops! {e}")
 
-        await asyncio.sleep(0.25)
+        await asyncio.sleep(0.1)
 
 
 # @asynccontextmanager
@@ -67,8 +89,8 @@ manager: Manager
 
 @app.on_event('startup')
 async def start():
-    Process(target=camera, args=(image, results)).start()
-    Process(target=start_bot, args=(image,)).start()
+    Process(target=camera, args=(image, results, edited, form)).start()
+    # Process(target=start_bot, args=(image,)).start()
 
     asyncio.create_task(send())
 
@@ -96,6 +118,8 @@ if __name__ == "__main__":
     manager = Manager()
     image = manager.Value("image", None)
     results = manager.Value("results", None)
+    edited = manager.Value("edited", True)
+    form = manager.Value("form", "Работаем")
 
     # uvicorn.run(app, port=8500, host='0.0.0.0')
     uvicorn.run(app, port=5000, host='127.0.0.1')

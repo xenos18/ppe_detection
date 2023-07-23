@@ -55,6 +55,16 @@ class ShEvent(Base):
     frame: Mapped[str] = mapped_column(String(100))
     location: Mapped[int] = mapped_column(ForeignKey("locations.id"))
 
+    def serialize(self):
+        # f'{self.time_out:%Y-%m-%d %H:%M:%S%z}',
+        return {
+            'id': self.id,
+            'time_in': self.time_in,
+            'time_out': self.time_out,
+            'check': self.check_seq
+
+        }
+
     def __repr__(self) -> str:
         return f"LabEvent(id={self.id!r}, time_in={self.time_in!r}), time_out={self.time_out!r}), " \
                f"check_seq={self.check_seq!r}), sequence={self.sequence!r}), frame={self.frame!r}), location={self.location!r})"

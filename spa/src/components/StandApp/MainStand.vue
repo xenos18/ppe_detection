@@ -1,6 +1,8 @@
 <template>
 
   <div class="main_container">
+    <div class="data">{{string}}</div>
+    <img class="logo" src="@/assets/images/biocad-logo.png"/>
     <!-- <img id="logo" src="@/assets/images/logo.jpg"> -->
     <img id="stream" class="video"/>
     <img id="human" :src="main" class="human"/>
@@ -16,6 +18,7 @@ export default {
       main: require('@/assets/images/human/00000000.png'),
       socket: null,
       url: null,
+      string: 'ТЫц-тыц телевизор'
     }
   },
   mounted() {
@@ -43,6 +46,13 @@ export default {
       }
 
       let data = JSON.parse(e.data);
+      if ('edited' in data) {
+        console.log(data['edited'])
+      }
+
+      if ('form' in data) {
+        this.string = data['form']
+      }
 
       if (data["type"] === "detection") {
         let main = ''
@@ -70,33 +80,84 @@ export default {
 
 <style scoped>
 .main_container {
-  display: grid;
-  align-items: center;
-  justify-content: center;
-  grid-template-columns: 2fr 1fr;
-  grid-template-areas:
-        "video human";
-  height: 95vh;
-  overflow: hidden;
+    display: grid;
+    align-items: center;
+    justify-content: center;
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: 2fr 1fr;
+    grid-template-areas: "video human"
+                         "data logo";
+    height: 100vh;
+    overflow: hidden;
 
 }
 
 .video {
-  grid-area: video;
-  width: 100%;
-  padding-left: 8%;
+    grid-area: video;
+    width: 85%;
+    padding: 5%;
 }
 
-.human {;
-  grid-area: human;
-  margin: auto;
-  display: block;
-  max-width: 100%;
-  max-height: 75vh;
-  width: auto;
-  height: auto;
-  /*width: 100%;*/
-  /*height: 90vh;*/
+.human {
+    padding-top: 10px;
+    grid-area: human;
+    margin: auto;
+    display: block;
+    max-width: 100%;
+    max-height: 70vh;
+}
 
+.data{
+    grid-area: data;
+    display: table-cell;
+    vertical-align: middle;
+    margin: 10px 10px;
+}
+
+.logo{
+    grid-area: logo;
+    margin: auto;
+    display: block;
+    max-width: 90%;
 }
 </style>
+
+<!--.main_container {-->
+<!--    display: grid;-->
+<!--    align-items: center;-->
+<!--    justify-content: center;-->
+<!--    grid-template-columns: 2fr 1fr;-->
+<!--    grid-template-rows: 2fr 1fr;-->
+<!--    grid-template-areas: "video human"-->
+<!--                         "data logo";-->
+<!--    height: 100vh;-->
+<!--    overflow: hidden;-->
+
+<!--}-->
+
+<!--.video {-->
+<!--    grid-area: video;-->
+<!--    width: 100%;-->
+<!--}-->
+
+<!--.human {;-->
+<!--    grid-area: human;-->
+<!--    margin: auto;-->
+<!--    display: block;-->
+<!--    max-width: 100%;-->
+<!--    max-height: 70vh;-->
+<!--}-->
+
+<!--.data{-->
+<!--    grid-area: data;-->
+<!--    display: table-cell;-->
+<!--    vertical-align: middle;-->
+<!--    margin: 10px 10px;-->
+<!--}-->
+
+<!--.logo{-->
+<!--    grid-area: logo;-->
+<!--    margin: auto;-->
+<!--    display: block;-->
+<!--    max-width: 90%;-->
+<!--}-->

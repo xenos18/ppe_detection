@@ -1,4 +1,3 @@
-
 from multiprocessing import Value
 
 import numpy as np
@@ -10,24 +9,27 @@ from video.sequence import Sequence
 from datetime import datetime
 import base64
 
-
 items = bx.keys()
 double = ["glove", "shoe"]
 
 DIST_THRESHOLD = 100
 
 last = dict()
-with open('sequence/seq.json') as file:
-    seq = json.load(file)["sequence"]
-seq = Sequence(seq)
+
+
+def get_seq():
+    with open('sequence/seq.json') as file:
+        seq = json.load(file)["sequence"]
+    return seq
+
 
 frameID = 0
 
 
-def camera(image: Value, results: Value):
+def camera(image: Value, results: Value, edited: Value, form: Value):
     global frameID
-
-    vid = VideoCapture(1)
+    seq = Sequence(get_seq(), form)
+    vid = VideoCapture(0)
     print('Camera Working')
 
     while True:
@@ -82,7 +84,8 @@ def camera(image: Value, results: Value):
             x0, y0, x1, y1 = map(int, pose_results[0].boxes.xyxy[i])
             track_id = int(pose_results[0].boxes[i].id) if pose_results[0].boxes[i].id is not None else 0
 
-            if track_id not in last.keys():  # predict normalization with geometric progression coefficients b[i] = FUNC_B * FUNC_Q ** i
+            if track_id not in last.keys():  # predict normalization with
+                # geometric progression coefficients b[i] = FUNC_B * FUNC_Q ** i
                 last[track_id] = dict()
                 for k in items:
                     if k not in double:
@@ -102,7 +105,9 @@ def camera(image: Value, results: Value):
 
             if DRAW_HUMAN_BBOX:
                 cv2.rectangle(img, (x0, y0), (x1, y1), (255, 0, 0), 4)
-                cv2.putText(img, str(int(pose_results[0].boxes[i].id)) if pose_results[0].boxes[i].id is not None else "no_track", (x0, y0), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 1, cv2.LINE_AA)
+                cv2.putText(img, str(int(pose_results[0].boxes[i].id)) if pose_results[0].boxes[
+                                                                              i].id is not None else "no_track",
+                            (x0, y0), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 1, cv2.LINE_AA)
 
             for k in bx:  # add data to WebSocket response
                 in_results[i]["items"][k].sort(key=lambda x: box_results[0].boxes.xywh[x][0])
@@ -141,19 +146,20 @@ def camera(image: Value, results: Value):
                 mx_a = w * h
                 mx_v = i
 
-        # if seq.frame_count == 0:
-        #     seq.id_now = mx_v
-        #     seq.time_in = datetime.now()
-        #     seq.prediction(box_results)
-        # else:
-        #     if seq.id_now != mx_v:
-        #         seq.time_out = datetime.now()
-        #         seq.add_event()
-        #         seq.id_now = mx_v
-        #         seq.create_check_dict()
-        #         seq.prediction(box_results)
-        #     else:
-        #         seq.prediction(box_results)
+        if seq.frame_count == 0:
+            seq.id_now = mx_v
+            seq.time_in = datetime.now()
+            seq.prediction(box_results)
+        else:
+            if seq.id_now != mx_v:
+                seq.time_out = datetime.now()
+                print('Вызов ....')
+                seq.add_event(edited)
+                seq.id_now = mx_v
+                seq.create_check_dict()
+                seq.prediction(box_results)
+            else:
+                seq.prediction(box_results)
 
         if mx_a > 0:  # highlight biggest-area human
             x0, y0, x1, y1 = map(int, pose_results[0].boxes.xyxy[mx_v])
@@ -174,4 +180,4 @@ def camera(image: Value, results: Value):
 
         image.value = cv2.imencode('.jpg', img)[1].tobytes()
 
-        results.value = list(map(lambda x: x["correct"], in_results))[mx_v:mx_v+1]
+        results.value = list(map(lambda x: x["correct"], in_results))[mx_v:mx_v + 1]

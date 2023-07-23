@@ -1,17 +1,17 @@
 import cv2
 import config
-from database.models import LabEvent, ShEvent
 from database.main_db import add_sh_event
-import os
+from random import randint
 from pathlib import Path
+
 
 class Sequence:
     last_objects = list()
     FPS_UPDARE = 10
 
-    def __init__(self, seq_list):
+    def __init__(self, seq_list, form):
         self.frame_count = 0
-
+        self.form = form
         self.model = config.model
 
         self.seq_list = seq_list
@@ -73,29 +73,29 @@ class Sequence:
                 self.yes_objects = list()
 
     def check_sequence(self):
-        print(f'Нужно надеть {self.seq_list[self.seq_num]}')
+        self.form.value = f'Нужно надеть {self.seq_list[self.seq_num]}'
         for i in range(len(self.yes_objects)):
             if self.yes_objects[i] not in self.last_objects and self.stop is False and self.check_dict[self.yes_objects[i]] != -1:
                 if self.yes_objects[i] == 'glove' or self.yes_objects[i] == 'shoe':
                     if self.yes_objects.count(self.yes_objects[i]) == 2:
-                        print(f'Вы надели {self.yes_objects[i]}')
+                        self.form.value = f'Вы надели {self.yes_objects[i]}'
                 else:
-                    print(f'Вы надели {self.yes_objects[i]}')
+                    self.form.value = f'Вы надели {self.yes_objects[i]}'
                 self.check_dict[self.yes_objects[i]] = 0
                 if self.seq_list[self.seq_num] == self.yes_objects[i]:
                     if self.seq_num == len(self.seq_list) - 1:
                         self.check_seq = True
-                        print('Вы абсолютно правильно оделись')
+                        self.form.value = 'Вы абсолютно правильно оделись'
                     else:
                         self.seq_num += 1
                 else:
                     self.check_seq = False
-                    print(f'Вы неправильно одеваетесь. Нужно надеть {self.seq_list[self.seq_num]}')
+                    self.form.value = f'Вы неправильно одеваетесь. Нужно надеть {self.seq_list[self.seq_num]}'
                     self.stop = self.yes_objects[i]
                     self.check_dict[self.yes_objects[i]] = -2
         for i in range(len(self.last_objects)):
             if self.last_objects[i] not in self.yes_objects:
-                print(f'Вы сняли {self.last_objects[i]}')
+                self.form.value = f'Вы сняли {self.last_objects[i]}'
                 if self.check_dict[self.last_objects[i]] == -2:
                     self.check_dict[self.last_objects[i]] = 0
                     self.stop = False
@@ -103,14 +103,11 @@ class Sequence:
                     self.seq_num -= 1
                     self.check_dict[self.last_objects[i]] = 0
 
-    def add_event(self):
-        max_ind = 0
+    def add_event(self, edited):
         
         Path('../save_frames/shluse/').mkdir(parents=True, exist_ok=True)
-        for filename in os.listdir('../save_frames/shluse/'):
-            ind = int(filename[:-4])
-            if ind > max_ind:
-                max_ind = ind
-        filename = f'../save_frames/shluse/{max_ind + 1}.jpg'
+        filename = f'../save_frames/shluse/{hex(randint(0, 1 << 128))}.jpg'
         cv2.imwrite(filename, self.img)
         add_sh_event(str(self.time_in), str(self.time_out), self.check_seq, filename)
+        print('Сохранение')
+        edited.value = True
