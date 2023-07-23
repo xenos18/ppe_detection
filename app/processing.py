@@ -95,5 +95,4 @@ def read_frames(source):
         yield (b"--frame\r\n"
                b"Content-Type: image/jpeg\r\n\r\n" + frame_bytes + b"\r\n\r\n")
 
-
     process1.kill()

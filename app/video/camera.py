@@ -21,6 +21,7 @@ with open('sequence/seq.json') as file:
 seq = Sequence(seq)
 
 frameID = 0
+track_elements = {}
 
 
 def camera(image: Value, results: Value):
@@ -87,8 +88,14 @@ def camera(image: Value, results: Value):
 
             if track_id not in last.keys():  # predict normalization with geometric progression coefficients b[i] = FUNC_B * FUNC_Q ** i
                 last[track_id] = dict()
+                track_elements[track_id] = dict()
                 for k in items:
                     last[track_id][k] = 0
+                    track_elements[track_id][k] = {
+                        "time": 0,
+                        "box": (0, 0, 0, 0),
+                        "correct": False
+                    }
 
                 last[track_id]["max"] = 0
 
@@ -110,15 +117,24 @@ def camera(image: Value, results: Value):
                 last[track_id][k] += in_results[i]["correct"][k] * FUNC_B
 
                 in_results[i]["correct"][k] = last[track_id][k] / last[track_id]["max"] > 0.5
-
-                if len(in_results[i]["items"][k]) > 0:
+                x0, y0, x1, y1, correct = None, None, None, None, None
+                if len(in_results[i]["items"][k]) == 0 and time.time() - track_elements[track_id][k]["time"] < MAX_BOX_DURATION:
+                    x0, y0, x1, y1 = track_elements[track_id][k]["box"]
+                    in_results[i]["correct"][k] = correct = track_elements[track_id][k]["correct"]
+                elif len(in_results[i]["items"][k]) > 0:
                     x0, y0, x1, y1 = map(int, box_results[0].boxes.xyxy[in_results[i]["items"][k][0]])
+                    correct = in_results[i]["correct"][k]
 
-                    if DRAW_SIZ_BBOX:
-                        cv2.rectangle(img, (x0, y0), (x1, y1),
-                                      (0, 255, 0) if in_results[i]["correct"][k] else (0, 0, 255), 4)
-                        cv2.putText(img, f"{k} (id = {track_id})", (x0, y0), cv2.FONT_HERSHEY_SIMPLEX, 1,
-                                    (255, 255, 255), 1, cv2.LINE_AA)
+                    track_elements[track_id][k] = {
+                        "time": time.time(),
+                        "box": (x0, y0, x1, y1),
+                        "correct": correct
+                    }
+
+                if correct is not None and DRAW_SIZ_BBOX:
+                    cv2.rectangle(img, (x0, y0), (x1, y1), (0, 255, 0) if correct else (0, 0, 255), 4)
+                    cv2.putText(img, f"{k} (id = {track_id})", (x0, y0), cv2.FONT_HERSHEY_SIMPLEX, 1,
+                                (255, 255, 255), 1, cv2.LINE_AA)
 
         mx_v = 0
         mx_a = 0
@@ -144,6 +160,8 @@ def camera(image: Value, results: Value):
 
         if mx_a > 0:  # highlight biggest-area human
             x0, y0, x1, y1 = map(int, pose_results[0].boxes.xyxy[mx_v])
+            h, w, _ = frame.shape
+            x0, y0, x1, y1 = max(0, x0), max(0, y0), min(w - 1, x1), min(h - 1, y1)
             tmp = img[y0:y1, x0:x1].copy()
             img = (img.astype(np.float64) / 2 + 127.5).astype(np.uint8)
             img[y0:y1, x0:x1] = tmp

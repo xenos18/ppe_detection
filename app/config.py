@@ -40,6 +40,7 @@ bx_ref = {
 }
 
 MODEL_CONF = 0.5
+MAX_BOX_DURATION = 0.5
 
 
 # @dataclass
