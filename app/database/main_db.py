@@ -32,3 +32,16 @@ def add_location(type, place):
             )
             session.add(loc)
             session.commit()
+
+
+def add_lab_event(start_time, end_time, type, frame):
+      with Session(engine) as session:
+            event = LabEvent(
+                  start_time=start_time,
+                  end_time=end_time,
+                  type=type,
+                  frame=frame,
+                  location=1
+            )
+            session.add(event)
+            session.commit()

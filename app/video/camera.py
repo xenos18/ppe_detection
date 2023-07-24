@@ -1,3 +1,4 @@
+import os
 from multiprocessing import Value
 
 import numpy as np
@@ -7,18 +8,21 @@ from config import *
 import json
 from video.sequence import Sequence
 from datetime import datetime
+from database.main_db import add_lab_event
 import base64
 
 
 items = bx.keys()
 
 DIST_THRESHOLD = 100
+CHECK_BAD_BOX_THRESHOLD = 2
 last = dict()
+last_box_list = list()
 frameID = 0
 
 
 def camera():
-    global frameID
+    global frameID, last_box_list
 
     vid = VideoCapture(0)
     print('Camera Working')
@@ -26,7 +30,7 @@ def camera():
     while True:
         frameID += 1
         frame = vid.read()
-        box_dict = dict()
+        box_list = list()
 
         if frame is None:
             continue
@@ -110,7 +114,7 @@ def camera():
                     x0, y0, x1, y1 = map(int, box_results[0].boxes.xyxy[in_results[i]["items"][k][0]])
 
                     if DRAW_SIZ_BBOX:
-                        box_dict[track_id] = [(x0, y0), (x1, y1), k if in_results[i]["correct"][k] else f'no_{k}']
+                        box_list.append([track_id, (x0, y0), (x1, y1), k if in_results[i]["correct"][k] else f'no_{k}'])
                         cv2.rectangle(img, (x0, y0), (x1, y1),
                                       (0, 255, 0) if in_results[i]["correct"][k] else (0, 0, 255), 4)
                         cv2.putText(img, f"{k} (id = {track_id})", (x0, y0), cv2.FONT_HERSHEY_SIMPLEX, 1,
@@ -136,9 +140,10 @@ def camera():
                     seq.add_event()
                 seq.create_check_dict()
                 seq.frame_count = 0
-            for key, value in box_dict.items():
-                if key == mx_v:
-                    results.append(value)
+            for i in range(len(box_list)):
+                if box_list[i][0] == mx_v:
+                    print(box_list[1:])
+                    results.append(box_list[1:])
 
             seq.prediction(results, img)
             x0, y0, x1, y1 = map(int, pose_results[0].boxes.xyxy[mx_v])
@@ -157,6 +162,34 @@ def camera():
         else:
             seq.id_now = -1
             img = (img.astype(np.float64) / 2 + 127.5).astype(np.uint8)
+        if len(last_box_list) == 0:
+            for box in box_list:
+                if box[0] == mx_v + 1 and 'no_' in box[-1]:
+                    last_box_list.append(box + [datetime.now(), 0])
+        else:
+            for box in last_box_list:
+                if box[0] == mx_v + 1:
+                    check_lst = list()
+                    check_box = False
+                    for now_box in box_list:
+                        check_lst.append(now_box[0])
+                        if now_box[0] == box[0] and now_box[-1] == box[-3]:
+                            check_box = True
+                    if check_box is False:
+                        box[-1] = datetime.now()
+                        delta = box[-1] - box[-2]
+                        if delta.seconds >= CHECK_BAD_BOX_THRESHOLD:
+                            print(f'Нарушение {box[3]} с {box[-2]} по {box[-1]}')
+                            mx_ind = 0
+                            for filename in os.listdir('save_frames/laboratory/'):
+                                if int(filename[:-4]) > mx_ind:
+                                    mx_ind = int(filename[:-4])
+                            filename = f'{mx_ind + 1}.jpg'
+                            cv2.imwrite(filename, img)
+                            add_lab_event(box[-2], box[-1], box[2], filename)
+                else:
+                    last_box_list = list()
+                    break
 
         cv2.imshow('feed', img)
         if cv2.waitKey(1) == ord('q'):
