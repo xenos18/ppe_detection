@@ -1,4 +1,4 @@
-from database import run
+# from database import run
 import asyncio
 # from contextlib import asynccontextmanager
 import random
@@ -8,15 +8,15 @@ from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Dict
 from multiprocessing import Process, Manager
-from sqlalchemy.orm import sessionmaker
-from database import _init
+# from sqlalchemy.orm import sessionmaker
+# from database import _init
 from video import Value, camera
 from routers import admin
 from bot import start_bot
-from crud import get_events_sh_last
+# from crud import get_events_sh_last
 
-run()
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=_init())
+# run()
+# SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=_init())
 image: Value
 results: Value
 edited: Value
@@ -24,12 +24,12 @@ form: Value
 ws_dict: Dict[int, WebSocket] = {}
 
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+# def get_db():
+#     db = SessionLocal()
+#     try:
+#         yield db
+#     finally:
+#         db.close()
 
 
 async def send():
@@ -44,11 +44,11 @@ async def send():
                 "ok": True,
                 "humans": results.value,
             }
-            if edited.value:
-                with SessionLocal() as sess:
-                    error = [i.serialize() for i in get_events_sh_last(sess)]
-                data['edited'] = error
-                edited.value = False
+            # if edited.value:
+            #     with SessionLocal() as sess:
+            #         error = [i.serialize() for i in get_events_sh_last(sess)]
+            #     data['edited'] = error
+            #     edited.value = False
             print(form.value)
             if form.value:
                 data['form'] = form.value
@@ -90,7 +90,7 @@ manager: Manager
 @app.on_event('startup')
 async def start():
     Process(target=camera, args=(image, results, edited, form)).start()
-    # Process(target=start_bot, args=(image,)).start()
+    Process(target=start_bot, args=(image,)).start()
 
     asyncio.create_task(send())
 

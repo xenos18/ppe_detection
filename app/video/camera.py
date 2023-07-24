@@ -29,7 +29,7 @@ track_elements = {}
 def camera(image: Value, results: Value, edited: Value, form: Value):
     global frameID
     seq = Sequence(get_seq(), form)
-    vid = VideoCapture(0)
+    vid = VideoCapture(RTSP_URL)
     print('Camera Working')
 
     while True:
