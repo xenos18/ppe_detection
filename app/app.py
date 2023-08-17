@@ -24,14 +24,6 @@ form: Value
 ws_dict: Dict[int, WebSocket] = {}
 
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
 async def send():
     while True:
         for ws_id in ws_dict.keys():
@@ -90,7 +82,7 @@ manager: Manager
 @app.on_event('startup')
 async def start():
     Process(target=camera, args=(image, results, edited, form)).start()
-    # Process(target=start_bot, args=(image,)).start()
+    Process(target=start_bot, args=(image,)).start()
 
     asyncio.create_task(send())
 

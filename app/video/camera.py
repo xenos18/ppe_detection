@@ -38,8 +38,8 @@ def camera(image: Value, results: Value, edited: Value, form: Value):
 
         if frame is None:
             continue
-
         box_results = model.predict(source=frame, conf=MODEL_CONF, verbose=False)
+
         pose_results = pose.track(source=frame, conf=0.4, persist=True, verbose=False)
 
         img = box_results[0].orig_img
@@ -117,13 +117,15 @@ def camera(image: Value, results: Value, edited: Value, form: Value):
                 in_results[i]["items"][k].sort(key=lambda x: box_results[0].boxes.xywh[x][0])
 
                 in_results[i]["items"][k] = in_results[i]["items"][k][:1]
-                in_results[i]["correct"][k] = len(in_results[i]["items"][k]) > 0 and "no_" not in detected_cls[in_results[i]["items"][k][0]]
+                in_results[i]["correct"][k] = len(in_results[i]["items"][k]) > 0 and "no_" not in detected_cls[
+                    in_results[i]["items"][k][0]]
 
                 last[track_id][k] += in_results[i]["correct"][k] * FUNC_B
 
                 in_results[i]["correct"][k] = last[track_id][k] / last[track_id]["max"] > 0.5
                 x0, y0, x1, y1, correct = None, None, None, None, None
-                if len(in_results[i]["items"][k]) == 0 and time.time() - track_elements[track_id][k]["time"] < MAX_BOX_DURATION:
+                if len(in_results[i]["items"][k]) == 0 and time.time() - track_elements[track_id][k][
+                    "time"] < MAX_BOX_DURATION:
                     x0, y0, x1, y1 = track_elements[track_id][k]["box"]
                     in_results[i]["correct"][k] = correct = track_elements[track_id][k]["correct"]
                 elif len(in_results[i]["items"][k]) > 0:
@@ -183,6 +185,6 @@ def camera(image: Value, results: Value, edited: Value, form: Value):
         else:
             img = (img.astype(np.float64) / 2 + 127.5).astype(np.uint8)
 
-        image.value = cv2.imencode('.jpg', img)[1].tobytes()
+        image.value = cv2.imencode('.jpg', frame)[1].tobytes()
 
         results.value = list(map(lambda x: x["correct"], in_results))[mx_v:mx_v + 1]

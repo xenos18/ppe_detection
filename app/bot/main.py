@@ -101,5 +101,6 @@ async def main():
 def start_bot(_image):
     global image
     image = _image
+    print('Я здесь')
     print('Bot working', os.environ.get("BOT_TOKEN"))
     asyncio.run(bot.polling())
