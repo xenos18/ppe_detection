@@ -35,6 +35,7 @@ services:
 
   node:
     container_name: vue-app
+    image: sirius_23_siz-node:deploy
     build:
       context: .
       dockerfile: Docker/spa/Dockerfile

@@ -18,7 +18,7 @@ export default {
       main: require('@/assets/images/human/00000000.png'),
       socket: null,
       url: null,
-      string: 'ТЫц-тыц телевизор'
+      string: ''
     }
   },
   mounted() {
@@ -50,9 +50,7 @@ export default {
         console.log(data['edited'])
       }
 
-      if ('form' in data) {
-        this.string = data['form']
-      }
+  
 
       if (data["type"] === "detection") {
         let main = ''
@@ -94,8 +92,9 @@ export default {
 
 .video {
     grid-area: video;
-    width: 85%;
-    padding: 5%;
+    min-width: 100%;
+    min-height: 100%;
+    /* padding: 5%; */
 }
 
 .human {
@@ -109,9 +108,10 @@ export default {
 
 .data{
     grid-area: data;
+    font-size:      40px;
     display: table-cell;
     vertical-align: middle;
-    margin: 10px 10px;
+    margin: 20px 20px;
 }
 
 .logo{

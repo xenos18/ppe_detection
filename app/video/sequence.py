@@ -1,6 +1,6 @@
 import cv2
 import config
-from database.main_db import add_sh_event
+# from database.main_db import add_sh_event
 from random import randint
 from pathlib import Path
 
@@ -108,6 +108,6 @@ class Sequence:
         Path('../save_frames/shluse/').mkdir(parents=True, exist_ok=True)
         filename = f'../save_frames/shluse/{hex(randint(0, 1 << 128))}.jpg'
         cv2.imwrite(filename, self.img)
-        add_sh_event(str(self.time_in), str(self.time_out), self.check_seq, filename)
+        # add_sh_event(str(self.time_in), str(self.time_out), self.check_seq, filename)
         print('Сохранение')
         edited.value = True
