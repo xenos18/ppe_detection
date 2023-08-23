@@ -1,11 +1,23 @@
-# Инструкция по развертке системы:
+# Система мониторинга условий стерильности и безопасности в чистых зонах фармацевтического производства
+***
+Тут немного about project (можно будет взять из статьи)
 
-1. Скачать **Docker** и установить его на комп/сервер, также **скачать/клонировать проект** из репозитория **разархивировать** куда-нибудь.
-2. Скачать файлы **.env** для основной директории и директории **app** и добавить их в них
-3. Скачать **yolov7-w6-pose.pt** и вставить в **app/yolov7/weigths**
-4. Запустить **docker-compose up --build** в основной директории проекта
-5. **Готово :)**
+## Requirements
+***
+-  Docker environment (recommended)
+
+### Setup Directions
+1. Please clone .env.example and copied file name change from .env.example to .env
+2. Вставить token telegram bot в app/bot .env  
+3. Вставить логин и пароль от камеры в app .env
+4. `docker-compose up --build`
 
 Сайт на локалке: **[127.0.0.1:8500](url)**.
 
-**P.S. Для установки понадобится не менее 6GB свободного места**
+## Help
+***
+You can join our ___ then ask your questions
+
+## License
+***
+The TailAdmin is open-sourced software licensed under the MIT license.

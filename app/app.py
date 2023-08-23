@@ -1,6 +1,5 @@
 from database import run
 import asyncio
-# from contextlib import asynccontextmanager
 import random
 
 import uvicorn
@@ -55,16 +54,6 @@ async def send():
         await asyncio.sleep(0.1)
 
 
-# @asynccontextmanager
-# async def lifespan(app: FastAPI):
-#     print("I'm here!")
-#     Process(target=camera, args=(image, results)).start()
-#     Process(target=start_bot, args=(image, )).start()
-
-#     asyncio.create_task(send())
-#     yield
-
-# app = FastAPI(lifespan=lifespan)
 app = FastAPI()
 app.include_router(admin.router)
 origins = ["*"]
@@ -82,7 +71,7 @@ manager: Manager
 @app.on_event('startup')
 async def start():
     Process(target=camera, args=(image, results, edited, form)).start()
-    Process(target=start_bot, args=(image,)).start()
+    # Process(target=start_bot, args=(image,)).start()
 
     asyncio.create_task(send())
 
