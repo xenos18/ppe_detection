@@ -3,18 +3,18 @@ import config
 # from database.main_db import add_sh_event
 from random import randint
 from pathlib import Path
-
+import json
 
 class Sequence:
     last_objects = list()
     FPS_UPDARE = 10
 
-    def __init__(self, seq_list, form):
+    def __init__(self):
         self.frame_count = 0
-        self.form = form
+        self.form = {}
         self.model = config.model
 
-        self.seq_list = seq_list
+        self.seq_list = self.get_seq()
         self.yes_objects_now = list()
         self.yes_objects = list()
         self.seq_num = 0
@@ -28,6 +28,11 @@ class Sequence:
 
         self.img = 0
         self.create_check_dict()
+
+    def get_seq(self):
+        with open('sequence/seq.json') as file:
+            seq = json.load(file)["sequence"]
+        return seq
 
     def create_check_dict(self):
         for i in range(len(self.seq_list)):
@@ -75,7 +80,8 @@ class Sequence:
     def check_sequence(self):
         self.form.value = f'Нужно надеть {self.seq_list[self.seq_num]}'
         for i in range(len(self.yes_objects)):
-            if self.yes_objects[i] not in self.last_objects and self.stop is False and self.check_dict[self.yes_objects[i]] != -1:
+            if self.yes_objects[i] not in self.last_objects and self.stop is False and self.check_dict[
+                self.yes_objects[i]] != -1:
                 if self.yes_objects[i] == 'glove' or self.yes_objects[i] == 'shoe':
                     if self.yes_objects.count(self.yes_objects[i]) == 2:
                         self.form.value = f'Вы надели {self.yes_objects[i]}'
@@ -102,12 +108,3 @@ class Sequence:
                 elif self.seq_list[self.seq_num - 1] == self.last_objects[i]:
                     self.seq_num -= 1
                     self.check_dict[self.last_objects[i]] = 0
-
-    def add_event(self, edited):
-        
-        Path('../save_frames/shluse/').mkdir(parents=True, exist_ok=True)
-        filename = f'../save_frames/shluse/{hex(randint(0, 1 << 128))}.jpg'
-        cv2.imwrite(filename, self.img)
-        # add_sh_event(str(self.time_in), str(self.time_out), self.check_seq, filename)
-        print('Сохранение')
-        edited.value = True

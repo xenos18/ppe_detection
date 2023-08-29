@@ -11,3 +11,4 @@ app/__pycache__/*
 app/__pycache__/config.cpython-311.pyc
 app/database.db
 app/bot/database.db
+/app/img.png
