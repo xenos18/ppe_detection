@@ -1,0 +1,9 @@
+elem index in binary string
+0 - hood
+1 - glasses
+2 - mask
+3 - suit
+4 - left_glove
+5 - right_glove
+6 - left_shoe
+7 - right_shoe
