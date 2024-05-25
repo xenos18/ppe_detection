@@ -17,7 +17,7 @@ After setups service will be available at [127.0.0.1:8500](url)
 
 ## Research notebooks
 
-In folder `/notebooks/` you can access to research notebooks. All notebooks was running on Google Colab.
+In folder `/notebooks/` you can access to research notebooks. All notebooks were running on Google Colab.
 
 ## Data access
 
